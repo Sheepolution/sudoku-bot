@@ -18,6 +18,7 @@ import PlayerGuildRepository from '../Repositories/PlayerGuildRepository';
 import PlayerRepository from '../Repositories/PlayerRepository';
 import SudokuRepository from '../Repositories/SudokuRepository';
 import ChannelService from '../Services/ChannelService';
+import CommandService from '../Services/CommandService';
 import DiscordService from '../Services/DiscordService';
 import MessageService from '../Services/MessageService';
 import { Utils } from '../Utils/Utils';
@@ -183,6 +184,11 @@ export default class PlayHandler {
         }
 
         const member = await DiscordService.FindMember(opponentMention, messageInfo.guild);
+        if (member.user.id == messageInfo.user.id) {
+            MessageService.ReplyMessage(messageInfo, `You can't challenge yourself. Start a singleplayer suduko with ${CommandService.GetCommandString(guild, CommandService.GetCommandString(guild, CommandConstants.COMMANDS.PLAY[0], ['single'], true))}`, false, true);
+            return;
+        }
+
         if (member == null) {
             MessageService.ReplyMessage(messageInfo, 'I\'m not able to find this member.', false, true);
             return;
