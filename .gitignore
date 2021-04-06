@@ -1,0 +1,10 @@
+.vscode
+node_modules
+package-lock.json
+lib
+.env
+.VSCodeCounter
+images
+docs
+data
+logs
