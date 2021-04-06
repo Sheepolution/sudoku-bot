@@ -91,7 +91,7 @@ Global rank: #${sudokuGlobalRank}
 Sudokus solved: ${stats.GetSolved()}
 Streak: ${stats.GetStreak()}
 
-Fastest time: ${stats.GetFastestSolve()}
+Fastest time: ${Utils.GetSecondsInDigitalMinutesAndSeconds(stats.GetFastestSolve())}
 Server rank: #${fastestSolveGuildRank}
 Global rank: #${fastestSolveGlobalRank}`;
 
