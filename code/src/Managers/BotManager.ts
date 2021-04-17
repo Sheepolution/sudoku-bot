@@ -12,6 +12,7 @@ import SettingsConstants from '../Constants/SettingsConstants';
 import MessageHandler from '../Handlers/MessageHandler';
 import ReactionManager from './ReactionManager';
 import ChannelService from '../Services/ChannelService';
+import Discord from '../Providers/Discord';
 
 export default class BotManager {
 
@@ -19,7 +20,19 @@ export default class BotManager {
 
     public static OnReady() {
         console.log(`${SettingsConstants.BOT_NAME}: Connected`);
+        BotManager.CreateActivityInterval();
         CacheManager.CreateTimeoutInterval();
+    }
+
+    public static CreateActivityInterval() {
+        this.SetActivity();
+        setInterval(() => {
+            this.SetActivity();
+        }, Utils.GetHoursInMiliSeconds(4));
+    }
+
+    public static SetActivity() {
+        Discord.GetClient().user?.setActivity(`${SettingsConstants.DEFAULT_PREFIX}help`, { type: 'WATCHING' });
     }
 
     public static async OnMessage(message: Message, edit?: boolean) {
