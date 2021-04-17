@@ -32,7 +32,7 @@ export default class DiscordService {
     public static async FindMemberById(searchKey: string, guild: Guild) {
         const id = DiscordUtils.GetMemberId(searchKey);
         if (id) {
-            const foundMember = guild.members.cache.get(id) || guild.members.fetch(id);
+            const foundMember = await guild.members.fetch(id);
             if (foundMember != null) {
                 return foundMember;
             }
@@ -60,7 +60,7 @@ export default class DiscordService {
                     foundChannel = guild.channels.cache.get(id);
                 }
             } else {
-                foundChannel = this.client.channels.cache.get(id) || await this.client.channels.fetch(id);
+                foundChannel = await this.client.channels.fetch(id);
             }
 
             if (foundChannel != null) {
@@ -84,10 +84,7 @@ export default class DiscordService {
     public static async FindRoleById(searchKey: string, guild: Guild) {
         const id = DiscordUtils.GetRoleId(searchKey);
         if (id) {
-            const foundRole = guild.roles.cache.get(id) || guild.roles.fetch(id);
-            if (foundRole != null) {
-                return foundRole;
-            }
+            return await guild.roles.fetch(id);
         }
     }
 
@@ -105,14 +102,14 @@ export default class DiscordService {
 
     public static async FindUserById(userId: string) {
         try {
-            return this.client.users.cache.get(userId) || await this.client.users.fetch(userId);
+            return await this.client.users.fetch(userId);
         } catch (error) {
             return null;
         }
     }
 
-    public static FindGuildById(guildId: string) {
-        return this.client.guilds.cache.get(guildId);
+    public static async FindGuildById(guildId: string) {
+        return await this.client.guilds.fetch(guildId, true);
     }
 
     public static IsMemberAdmin(member: GuildMember) {
