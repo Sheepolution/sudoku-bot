@@ -15,6 +15,10 @@ export default class DiscordService {
         this.client = client;
     }
 
+    public static async FindBotMember(guild: Guild) {
+        return await DiscordService.FindMemberById(this.client.user.id, guild);
+    }
+
     public static async FindMember(searchKey: string, guild: Guild) {
         const foundMember = await this.FindMemberById(searchKey, guild);
         if (foundMember) {
@@ -121,7 +125,7 @@ export default class DiscordService {
     }
 
     public static async CheckPermission(messageInfo: IMessageInfo, permission: PermissionResolvable, action?: string, sendMessage: boolean = true) {
-        const botMember = await DiscordService.FindMemberById(this.client.user.id, messageInfo.guild);
+        const botMember = await DiscordService.FindBotMember(messageInfo.guild);
         const permissions = botMember.permissionsIn(messageInfo.channel);
         if (permissions.has(permission)) {
             return true;
