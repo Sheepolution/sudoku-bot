@@ -43,7 +43,7 @@ You can donate using the methods below:
 
 **Buy me a coffee** - [Link](${SettingsConstants.DONATION_BMAC_URL})
 
-You can also help me by [voting for the bot](https://top.gg/bot/${SettingsConstants.BOT_ID}) and write a review.`)
+You can also help me by [voting for the bot](https://top.gg/bot/${SettingsConstants.BOT_ID}) and writing a review.`)
             .setFooter(`Thank you ${EmojiConstants.HEART}`);
 
         return embed;
