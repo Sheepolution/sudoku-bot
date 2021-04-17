@@ -35,7 +35,7 @@ A small donation would be much appreciated!
 With your support I will be able to pay for the server costs and financially support other projects. 
 You can donate using the methods below:
 
-**Paypal** - [Link](${SettingsConstants.DONATION_PATREON_URL})
+**Patreon** - [Link](${SettingsConstants.DONATION_PATREON_URL})
 
 **Paypal** - [Link](${SettingsConstants.DONATION_PAYPAL_URL})
 
