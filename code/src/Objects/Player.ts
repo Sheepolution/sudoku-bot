@@ -1,6 +1,7 @@
 import { PlayerState } from '../Enums/PlayerState';
 import PlayerModel from '../Models/PlayerModel';
 import PlayerStatsRepository from '../Repositories/PlayerStatsRepository';
+import { Utils } from '../Utils/Utils';
 
 export default class Player {
 
@@ -17,8 +18,8 @@ export default class Player {
         this.model = model;
         this.id = model.id;
         this.discordId = model.discord_id;
-        this.joinDate = model.join_date;
-        this.leaveDate = model.leave_date;
+        this.joinDate = Utils.GetDateOrNull(model.join_date);
+        this.leaveDate = Utils.GetDateOrNull(model.leave_date);
         this.name = model.name;
         this.customName = model.custom_name;
     }

@@ -68,6 +68,14 @@ export module Utils {
         return date;
     }
 
+    export function GetDateOrNull(date: string) {
+        if (date == null) {
+            return null;
+        }
+
+        return new Date(date);
+    }
+
     export function ConvertDateToUtc(date: Date) {
         if (date == null) {
             return null;

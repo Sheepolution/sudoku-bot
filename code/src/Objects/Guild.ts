@@ -18,8 +18,8 @@ export default class Guild {
         this.id = model.id;
         this.discordId = model.discord_id;
         this.state = model.GetState();
-        this.joinDate = model.join_date;
-        this.leaveDate = model.end_date;
+        this.joinDate = Utils.GetDateOrNull(model.join_date);
+        this.leaveDate = Utils.GetDateOrNull(model.end_date);
         this.prefix = model.prefix;
     }
 

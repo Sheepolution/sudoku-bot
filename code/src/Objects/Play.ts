@@ -20,8 +20,8 @@ export default class Play {
     public ApplyModel(model: PlayModel) {
         this.model = model;
         this.id = model.id;
-        this.startDate = new Date(model.start_date);
-        this.solveDate = new Date(model.solve_date);
+        this.startDate = Utils.GetDateOrNull(model.start_date);
+        this.solveDate = Utils.GetDateOrNull(model.solve_date);
         this.duration = model.duration;
         this.type = model.GetType();
         this.messageId = model.message_id;
