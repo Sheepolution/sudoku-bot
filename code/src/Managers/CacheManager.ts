@@ -11,8 +11,8 @@ export default class CacheManager {
     }
 
     public static OnInterval() {
-        for (const className of this.cache) {
-            for (const methodName of this.cache[className]) {
+        for (const className in this.cache) {
+            for (const methodName in this.cache[className]) {
                 const cacheList = this.cache[className][methodName];
                 for (let i = 0; i < cacheList.length; i++) {
                     const cache = cacheList[i];
