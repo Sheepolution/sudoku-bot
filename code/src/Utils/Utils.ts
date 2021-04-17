@@ -65,9 +65,6 @@ export module Utils {
 
     export function GetNow() {
         const date = new Date;
-        date.setDate(date.getUTCDate());
-        date.setHours(date.getUTCHours());
-
         return date;
     }
 
