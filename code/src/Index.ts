@@ -11,6 +11,7 @@ class Main {
     constructor() {
         Discord.SetEventReadyCallback(BotManager.OnReady);
         Discord.SetEventMessageCallback(BotManager.OnMessage);
+        Discord.SetEventMessageUpdateCallback(BotManager.OnMessage);
         Discord.SetEventReactionAddCallback(BotManager.OnReaction);
         Discord.Init();
     }
