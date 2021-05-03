@@ -25,7 +25,7 @@ export default class TopHandler {
 
     public static async OnTop(messageInfo: IMessageInfo, guild: Guild, what: string, where: string) {
         if (!what?.isFilled()) {
-            MessageService.ReplyMessage(messageInfo, `Use this command to get a top 10 list.\n${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['time/average/sudoku ID', 'server/global'])}`);
+            MessageService.ReplyMessage(messageInfo, `Use this command to get a top 10 list.\n${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['time/average/Sudoku ID', 'server/global'])}`);
         }
 
         var type: TopListType;
@@ -45,7 +45,7 @@ export default class TopHandler {
 
             const whatNumber = parseInt(what);
             if (isNaN(whatNumber)) {
-                MessageService.ReplyMessage(messageInfo, `I don't know what you mean with '${whatLower}'. Use 'time', 'average', 'solved', or a sudoku ID. (e.g. #1234).`, false, true);
+                MessageService.ReplyMessage(messageInfo, `I don't know what you mean with '${whatLower}'. Use 'time', 'average', 'solved', or a Sudoku ID. (e.g. #1234).`, false, true);
                 return;
             } else {
                 type = TopListType.Sudoku;
