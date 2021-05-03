@@ -11,6 +11,7 @@ import PlayHandler from './PlayHandler';
 import AdminHandler from './AdminHandler';
 import TopHandler from './TopHandler';
 import GeneralHandler from './GeneralHandler';
+import PlayerHandler from './PlayerHandler';
 
 export default class CommandHandler {
 
@@ -57,6 +58,8 @@ export default class CommandHandler {
         }
 
         if (PlayHandler.OnCommand(messageInfo, guild)) {
+            return;
+        } else if (PlayerHandler.OnCommand(messageInfo, guild)) {
             return;
         } else if (TopHandler.OnCommand(messageInfo, guild)) {
             return;

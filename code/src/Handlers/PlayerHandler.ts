@@ -1,5 +1,4 @@
 import CommandConstants from '../Constants/CommandConstants';
-import RedisConstants from '../Constants/RedisConstants';
 import SettingsConstants from '../Constants/SettingsConstants';
 import PlayerEmbeds from '../Embeds/PlayerEmbeds';
 import IMessageInfo from '../Interfaces/IMessageInfo';
@@ -8,9 +7,7 @@ import Guild from '../Objects/Guild';
 import CommandService from '../Services/CommandService';
 import MessageService from '../Services/MessageService';
 
-export default class PlayHandler {
-
-    private static readonly messageKey = RedisConstants.REDIS_KEY + RedisConstants.SUDOKU_KEY + RedisConstants.MESSAGE_KEY;
+export default class PlayerHandler {
 
     public static OnCommand(messageInfo: IMessageInfo, guild: Guild) {
         const commands = CommandConstants.COMMANDS;
