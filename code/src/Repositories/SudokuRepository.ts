@@ -18,8 +18,6 @@ export default class SudokuRepository {
     }
 
     public static async GetRandom() {
-        return this.GetById(5530);
-        // TODO: Change this back
-        // return this.GetById(Utils.Random(0, SudokuConstants.NUMBER_OF_SUDOKUS - 1, true));
+        return this.GetById(Utils.Random(0, SudokuConstants.NUMBER_OF_SUDOKUS - 1, true));
     }
 }
