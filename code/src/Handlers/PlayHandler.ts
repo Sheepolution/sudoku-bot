@@ -71,8 +71,10 @@ export default class PlayHandler {
             return;
         }
 
-        if (play.GetChannelId() != messageInfo.channel.id) {
-            return;
+        if (play != null) {
+            if (play.GetChannelId() != messageInfo.channel.id) {
+                return;
+            }
         }
 
         const numbers = solution.replace(/[^\d]/g, '');
