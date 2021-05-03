@@ -26,8 +26,9 @@ Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.PLAY[0], 
 You will need a streak of at least 5 solves to set a time for your Fastest Average of Five. Only Singleplayer Sudoku will extend your streak.
 Starting a Singleplayer Sudoku but not finishing it in ${SettingsConstants.PLAY_EXPIRE_TIME_TEXT} will reset your streak.
 
-**Statistics**
-Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.STATS[0])} to get your statistics.
+**Statistics and Leaderboards**
+Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.STATS[0])} to get personal statistics.
+Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['fastest/average/solved/[Sudoku ID]', 'guild/global'], true)} to see the leaderboards.
 
 **Name**
 Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.NAME[0])} to set a custom name to use on the leaderboards instead of your Discord username.
