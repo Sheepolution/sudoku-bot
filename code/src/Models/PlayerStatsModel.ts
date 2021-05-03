@@ -1,6 +1,7 @@
 import { Utils } from '../Utils/Utils';
 import { PlayType } from '../Enums/PlayType';
 import Player from '../Objects/Player';
+import { PlayerState } from '../Enums/PlayerState';
 
 const { Model } = require('objection');
 
@@ -78,6 +79,101 @@ export default class PlayerStatsModel extends Model {
                 ) as toplist
             where toplist.player_id = ? limit 1;
         `, [playerId])).rows[0].rank_number;
+    }
+
+    // Lists
+
+    public static async GetFastestSolveGuildList(guildId: string) {
+        const knex = PlayerStatsModel.knex();
+        return (await knex.raw(`
+            select player.name, playerstats.fastest_solve as duration, fastest_solve_sudoku_id as sudoku_id from playerstats
+            join
+                player_guild on player_guild.player_id = playerstats.player_id
+            join
+                player on player.id = playerstats.player_id
+            where
+                player_guild.guild_id = ?
+                and player.state = ?
+                and fastest_solve is not null
+            order by duration
+            fetch first 10 rows only
+            `, [guildId, PlayerState.Active])).rows;
+    }
+
+    public static async GetFastestSolveGlobalList() {
+        const knex = PlayerStatsModel.knex();
+        return (await knex.raw(`
+            select player.name, playerstats.fastest_solve as duration, fastest_solve_sudoku_id as sudoku_id from playerstats
+            join
+                player on player.id = playerstats.player_id
+            where
+                fastest_solve is not null
+                and player.state = ?
+            order by duration
+            fetch first 10 rows only
+            `, [PlayerState.Active])).rows;
+    }
+
+    public static async GetFastestAverageOfFiveGuildList(guildId: string) {
+        const knex = PlayerStatsModel.knex();
+        return (await knex.raw(`
+            select player.name, playerstats.fastest_avg_of_five as duration from playerstats
+            join
+                player_guild on player_guild.player_id = playerstats.player_id
+            join
+                player on player.id = playerstats.player_id
+            where
+                player_guild.guild_id = ?
+                and player.state = ?
+                and fastest_avg_of_five is not null
+            order by duration
+            fetch first 10 rows only
+            `, [guildId, PlayerState.Active])).rows;
+    }
+
+    public static async GetFastestAverageOfFiveGlobalList() {
+        const knex = PlayerStatsModel.knex();
+        return (await knex.raw(`
+            select player.name, playerstats.fastest_avg_of_five as duration from playerstats
+            join
+                player on player.id = playerstats.player_id
+            where
+                fastest_avg_of_five is not null
+                and player.state = ?
+            order by duration
+            fetch first 10 rows only
+            `, [PlayerState.Active])).rows;
+    }
+
+    public static async GetMostSolvedGuildList(guildId: string) {
+        const knex = PlayerStatsModel.knex();
+        return (await knex.raw(`
+            select player.name, playerstats.fastest_avg_of_five as duration from playerstats
+            join
+                player_guild on player_guild.player_id = playerstats.player_id
+            join
+                player on player.id = playerstats.player_id
+            where
+                player_guild.guild_id = ?
+                and player.state = ?
+                and solved > 0
+            order by solved desc
+            fetch first 10 rows only
+            `, [guildId, PlayerState.Active])).rows;
+    }
+
+    public static async GetMostSolvedGlobalList() {
+        const knex = PlayerStatsModel.knex();
+        return (await knex.raw(`
+            select player.name, playerstats.solved as solved from playerstats
+            join
+                player on player.id = playerstats.player_id
+            where
+                solved > 0
+                and player.state = ?
+            order by solved desc
+            fetch first 10 rows only
+            `, [PlayerState.Active])).rows;
     }
 
     public async Update(data: any, trx?: any) {

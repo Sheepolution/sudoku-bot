@@ -5,22 +5,26 @@ import RedisConstants from '../Constants/RedisConstants';
 import SettingsConstants from '../Constants/SettingsConstants';
 import SudokuConstants from '../Constants/SudokuConstants';
 import PlayEmbeds from '../Embeds/PlayEmbeds';
+import PlayerEmbeds from '../Embeds/PlayerEmbeds';
+import { LogType } from '../Enums/LogType';
 import { PlayType } from '../Enums/PlayType';
 import IMessageInfo from '../Interfaces/IMessageInfo';
 import CommandManager from '../Managers/CommandManager';
 import PlayerManager from '../Managers/PlayerManager';
 import PlayManager from '../Managers/PlayManager';
 import Guild from '../Objects/Guild';
+import Play from '../Objects/Play';
 import Player from '../Objects/Player';
 import { Redis } from '../Providers/Redis';
 import GuildRepository from '../Repositories/GuildRepository';
-import PlayerGuildRepository from '../Repositories/PlayerGuildRepository';
 import PlayerRepository from '../Repositories/PlayerRepository';
 import SudokuRepository from '../Repositories/SudokuRepository';
 import ChannelService from '../Services/ChannelService';
 import CommandService from '../Services/CommandService';
 import DiscordService from '../Services/DiscordService';
+import LogService from '../Services/LogService';
 import MessageService from '../Services/MessageService';
+import DiscordUtils from '../Utils/DiscordUtils';
 import { Utils } from '../Utils/Utils';
 
 export default class PlayHandler {
@@ -34,6 +38,9 @@ export default class PlayHandler {
         switch (messageInfo.commandInfo.commands) {
             case commands.PLAY:
                 this.OnPlay(messageInfo, guild, commandInfo.args[0], commandInfo.args[1]);
+                break;
+            case commands.STOP:
+                this.OnStop(messageInfo, guild);
                 break;
             default: return false;
         }
@@ -53,13 +60,27 @@ export default class PlayHandler {
             }
         }
 
+        var play: Play | true;
+        play = await PlayManager.GetPlay(player);
+
+        if (play == null) {
+            play = await PlayManager.GetRoyalePlay(guild, messageInfo.channel.id);
+        }
+
+        if (play == true) {
+            return;
+        }
+
+        if (play.GetChannelId() != messageInfo.channel.id) {
+            return;
+        }
+
         const numbers = solution.replace(/[^\d]/g, '');
         if (numbers.length != SudokuConstants.AMOUNT_OF_TOTAL_NUMBERS) {
             var botMessage: Message;
             if (numbers.length > SudokuConstants.AMOUNT_OF_STARTING_NUMBERS) {
-                if (!PlayManager.IsPlayerPlaying(guild, player)) {
-                    // TODO: Check if there is a Battle Royale going on
-                    botMessage = await MessageService.ReplyMessage(messageInfo, 'The sudoku you\'re trying to solve is not meant for you, or has already been solved.', false, true, null, oldMessage);
+                if (play == null) {
+                    await MessageService.ReplyMessage(messageInfo, 'The Sudoku you\'re trying to solve is not meant for you, or has already been solved.', false, true, null, oldMessage);
                     return;
                 }
 
@@ -74,28 +95,41 @@ export default class PlayHandler {
             }
 
             if (botMessage != null) {
-                Redis.set(this.messageKey + messageInfo.message.id, botMessage.id, 'ex', Utils.GetMinutesInSeconds(1));
+                Redis.set(this.messageKey + messageInfo.message.id, botMessage.id, 'ex', Utils.GetMinutesInSeconds(5));
             }
 
             return;
         }
 
-        const resultInfo = await PlayManager.SolvePlay(messageInfo, solution, guild, player);
+        if (play == null) {
+            await MessageService.ReplyMessage(messageInfo, 'The Sudoku you\'re trying to solve is not meant for you, or has already been solved.', false, true, null, oldMessage);
+            return;
+        }
+
+        const resultInfo = await PlayManager.SolvePlay(messageInfo, play, solution, guild, player, messageInfo.channel.id);
         if (resultInfo.result) {
             await Redis.del(this.messageKey + messageInfo.message.id);
             const solvedMessage = await MessageService.ReplyEmbed(messageInfo, await PlayEmbeds.GetSolvedEmbed(resultInfo.data.play, player, guild), null, oldMessage);
 
             const message = (<TextChannel>messageInfo.channel).messages.cache.get(resultInfo.data.play.GetMessageId());
             if (message != null) {
-                message.edit(PlayEmbeds.GetEditSinglePlayerSudokuEmbed(player, solvedMessage.url));
+                try {
+                    message.edit(await PlayEmbeds.GetEditSolvedSinglePlayerSudokuEmbed(play, solvedMessage.url));
+                } catch (error) {
+                    // Whatever
+                }
             }
-
         } else {
-            MessageService.ReplyMessage(messageInfo, resultInfo.reason, null, null, null, oldMessage);
+            if (resultInfo.reason == 'cheated') {
+                MessageService.ReplyMessage(messageInfo, '', null, true, player.IsBanned() ? PlayerEmbeds.GetBannedEmbed() : PlayerEmbeds.GetStrikeEmbed(), oldMessage);
+            } else {
+                MessageService.ReplyMessage(messageInfo, resultInfo.reason, null, null, null, oldMessage);
+            }
         }
     }
 
     public static async OnAcceptChallenge(messageInfo: IMessageInfo) {
+
         const guild = await GuildRepository.GetByDiscordId(messageInfo.guild.id);
         if (guild == null) {
             return;
@@ -111,9 +145,38 @@ export default class PlayHandler {
         }
 
         const player = await PlayerRepository.GetByDiscordId(challenge.player_id);
+
+        const play = await PlayManager.GetPlay(player);
+        if (play != null) {
+            const playType = play.GetType();
+            if (playType == PlayType.VS) {
+                MessageService.ReplyMessage(messageInfo, `You can't start a new game because you're still in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}. One of you will have to solve it.`, false, true);
+                return;
+            } else if (playType == PlayType.Royale) {
+                // TODO: Make this an embed and add the url to the sudoku
+                MessageService.ReplyMessage(messageInfo, 'You can\'t start a new game because you\'re still hosting a Battle Royale Sudoku. Someone will have to solve it before you can start a new game.', false, true);
+                return;
+            } else {
+                PlayManager.HandleUnfinishedPlay(play);
+            }
+        }
+
         const opponent = await PlayerRepository.GetByDiscordId(challenge.opponent_id);
+        if (await PlayManager.FindExistingChallenge(guild, opponent)) {
+            MessageService.ReplyMessage(messageInfo, 'You need to cancel your own challenge request first.', false, true);
+            return;
+        }
+
+        if (opponent.IsPreparingPlay()) {
+            MessageService.ReplyMessage(messageInfo, 'You can\'t accept this challenge as you\'re about to begin a Sudoku!', false, true);
+            return;
+        }
+
+        player.SetPreparingPlay(true);
+        opponent.SetPreparingPlay(true);
 
         DiscordService.RemoveAllReactions(messageInfo, messageInfo.message);
+        await PlayManager.DeleteChallenge(guild, messageInfo.message.id);
 
         await Utils.Sleep(SettingsConstants.CHALLENGE_DELAY_TIME);
 
@@ -121,9 +184,42 @@ export default class PlayHandler {
         const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSEmbed(sudoku, player, opponent));
 
         if (message != null) {
-            PlayManager.StartVSPlay(sudoku, guild, player, opponent, messageInfo.message.createdAt, message.id);
+            PlayManager.StartVSPlay(sudoku, guild, player, opponent, messageInfo.message.createdAt, message.id, message.channel.id);
         }
 
+        player.SetPreparingPlay(false);
+        opponent.SetPreparingPlay(false);
+    }
+
+    public static async OnDeclineChallenge(messageInfo: IMessageInfo) {
+        const guild = await GuildRepository.GetByDiscordId(messageInfo.guild.id);
+        if (guild == null) {
+            return;
+        }
+
+        const challenge = await PlayManager.GetChallenge(guild, messageInfo.message.id);
+        if (challenge == null) {
+            return;
+        }
+
+        if (messageInfo.user.id == challenge.player_id && messageInfo.user.id == challenge.opponent_id) {
+            return;
+        }
+
+        const player = await PlayerRepository.GetByDiscordId(challenge.player_id);
+        const opponent = await PlayerRepository.GetByDiscordId(challenge.opponent_id);
+
+        if (messageInfo.user.id == challenge.player_id) {
+            if (await PlayManager.DeleteChallenge(guild, messageInfo.message.id)) {
+                DiscordService.RemoveAllReactions(messageInfo, messageInfo.message);
+                MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeCancelledEmbed(player, opponent), null, messageInfo.message);
+            }
+        } else if (messageInfo.user.id == challenge.opponent_id) {
+            if (await PlayManager.DeleteChallenge(guild, messageInfo.message.id)) {
+                DiscordService.RemoveAllReactions(messageInfo, messageInfo.message);
+                MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeNotAcceptedEmbed(player, opponent), null, messageInfo.message);
+            }
+        }
     }
 
     private static async OnPlay(messageInfo: IMessageInfo, guild: Guild, type: string, opponentMention: string) {
@@ -134,63 +230,103 @@ export default class PlayHandler {
         const player = await this.GetPlayer(messageInfo.user, guild);
         if (player == null) {
             MessageService.ReplyMessage(messageInfo, 'You have been banned from using this bot.', false, true);
+            CommandManager.SetCooldown(messageInfo, 600);
         }
 
-        if (!type?.isFilled() || type == 'single') {
+        if (!opponentMention?.isFilled() && type?.isFilled()) {
+            if (DiscordUtils.GetMemberId(type) != null) {
+                opponentMention = type;
+                type = 'vs';
+            }
+        }
+
+        const play = await PlayManager.GetPlay(player);
+        if (play != null) {
+            const playType = play.GetType();
+            if (playType == PlayType.VS) {
+                MessageService.ReplyMessage(messageInfo, `You can't start a new game because you're still in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}. One of you will have to solve it.`, false, true);
+                CommandManager.SetCooldown(messageInfo, 10);
+                return;
+            } else if (playType == PlayType.Royale) {
+                // TODO: Make this an embed and add the url to the sudoku
+                MessageService.ReplyMessage(messageInfo, 'You can\'t start a new game because you\'re still hosting a Battle Royale Sudoku. Someone will have to solve it before you can start a new game.', false, true);
+                CommandManager.SetCooldown(messageInfo, 10);
+                return;
+            } else {
+                PlayManager.HandleUnfinishedPlay(play);
+            }
+        }
+
+        if (player.IsPreparingPlay()) {
+            MessageService.ReplyMessage(messageInfo, 'You\'re already about to start a Sudoku!', false, true);
+            CommandManager.SetCooldown(messageInfo, 10);
+            return;
+        }
+
+        if (type == 'vs') {
+            this.OnVSGame(messageInfo, guild, player, opponentMention);
+        } else if (!type?.isFilled() || type == 'single') {
             this.OnSingleplayerGame(messageInfo, guild, player);
             return;
-        } else if (type == 'vs') {
-            this.OnVSGame(messageInfo, guild, player, opponentMention);
-            return;
-            // } else if (type == 'royale') {
-            // TODO: Check if a royale is already going on.
-            // TODO: Is everyone allowed to start a royale? Yeah sure why not I suppose?
-            // But then don't have a stat like "Most royales won" because that doesn't say much I guess?
-            // return;
+        } else if (type == 'royale') {
+            this.OnRoyaleGame(messageInfo, guild, player);
         } else {
-            MessageService.ReplyMessage(messageInfo, 'The game types that are available are `single` and `vs`.', false, true);
+            MessageService.ReplyMessage(messageInfo, 'The game types that are available are `single`, `vs` and `royale`.', false, true);
             return;
         }
     }
 
-    private static async OnSingleplayerGame(messageInfo: IMessageInfo, guild: Guild, player: Player) {
-        const play = await PlayManager.GetPlay(guild, player);
-        if (play != null && play.GetType() == PlayType.VS) {
-            MessageService.ReplyMessage(messageInfo, `You can't start a new game because you're still in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}.`, false, true);
+    private static async OnStop(messageInfo: IMessageInfo, guild: Guild) {
+        if (!await ChannelService.CheckChannel(messageInfo)) {
             return;
         }
 
+        const player = await this.GetPlayer(messageInfo.user, guild);
+        if (player == null) {
+            return;
+        }
+
+        const play = await PlayManager.GetPlay(player);
+        if (play == null) {
+            MessageService.ReplyMessage(messageInfo, 'There was no Sudoku to cancel.', false, true);
+            CommandManager.SetCooldown(messageInfo, 10);
+        }
+
+        if (play != null && play.GetType() == PlayType.VS) {
+            MessageService.ReplyMessage(messageInfo, `You can't stop a Multiplayer Sudoku. You or ${(await play.GetOpponent(player)).GetName()} will have to solve it.`, false, true);
+            CommandManager.SetCooldown(messageInfo, 10);
+            return;
+        }
+
+        await PlayManager.HandleUnfinishedPlay(play);
+        MessageService.ReplyMessage(messageInfo, 'The Sudoku has been cancelled.', true, true);
+        CommandManager.SetCooldown(messageInfo, 10);
+        LogService.Log(LogType.SudokuStoppedSingle, guild, player, play.GetId());
+    }
+
+    private static async OnSingleplayerGame(messageInfo: IMessageInfo, guild: Guild, player: Player) {
         const sudoku = await SudokuRepository.GetRandom();
         const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetSinglePlayerEmbed(sudoku, player));
 
         if (message != null) {
-            PlayManager.StartPlay(sudoku, guild, player, messageInfo.message.createdAt, message.id);
+            PlayManager.StartPlay(sudoku, guild, player, messageInfo.message.createdAt, message.id, message.channel.id);
         }
 
         CommandManager.SetCooldown(messageInfo, 30);
-
     }
 
     private static async OnVSGame(messageInfo: IMessageInfo, guild: Guild, player: Player, opponentMention: string) {
-        const play = await PlayManager.GetPlay(guild, player);
-        if (play != null && play.GetType() == PlayType.VS) {
-            MessageService.ReplyMessage(messageInfo, `You can't start a new game because you're still in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}.`, false, true);
-            return;
-        }
-
-        if (!opponentMention?.isFilled()) {
-            MessageService.ReplyMessage(messageInfo, 'You need to mention the person you want to challenge.', false, true);
-            return;
-        }
-
         const member = await DiscordService.FindMember(opponentMention, messageInfo.guild);
+
         if (member.user.id == messageInfo.user.id) {
             MessageService.ReplyMessage(messageInfo, `You can't challenge yourself. Start a singleplayer suduko with ${CommandService.GetCommandString(guild, CommandService.GetCommandString(guild, CommandConstants.COMMANDS.PLAY[0], ['single'], true))}`, false, true);
+            CommandManager.SetCooldown(messageInfo, 5);
             return;
         }
 
         if (member == null) {
             MessageService.ReplyMessage(messageInfo, 'I\'m not able to find this member.', false, true);
+            CommandManager.SetCooldown(messageInfo, 5);
             return;
         }
 
@@ -198,13 +334,16 @@ export default class PlayHandler {
 
         if (opponent == null) {
             MessageService.ReplyMessage(messageInfo, 'This member is banned, so they can\'t be challenged.', false, true);
+            CommandManager.SetCooldown(messageInfo, 5);
             return;
         }
+
+        CommandManager.SetCooldown(messageInfo, 62);
 
         const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeEmbed(player, opponent));
         await PlayManager.CreateChallenge(guild, message.id, player.GetDiscordId(), opponent.GetDiscordId());
 
-        if (DiscordService.CheckPermission(messageInfo, 'ADD_REACTIONS')) {
+        if (await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'ADD_REACTIONS', null, messageInfo)) {
             await message.react(EmojiConstants.STATUS.GOOD).catch();
             await Utils.Sleep(.5);
             await message.react(EmojiConstants.STATUS.BAD).catch();
@@ -217,15 +356,49 @@ export default class PlayHandler {
         }
     }
 
+    private static async OnRoyaleGame(messageInfo: IMessageInfo, guild: Guild, player: Player) {
+        const play = await PlayManager.GetPlay(player);
+
+        const royalePlay = await PlayManager.GetRoyalePlay(guild, messageInfo.channel.id);
+        if (royalePlay == true) {
+            MessageService.ReplyMessage(messageInfo, 'A Battle Royale Sudoku is already about to start in this channel.', false, true);
+            CommandManager.SetCooldown(messageInfo, 10);
+            return;
+        }
+
+        if (royalePlay != null) {
+            MessageService.ReplyMessage(messageInfo, `There is already a Battle Royale Sudoku going on in this channel.\nLink: ${play.GetMessageUrl()}`, false, true);
+            CommandManager.SetCooldown(messageInfo, 10);
+            return;
+        }
+
+        if (player.IsPreparingPlay()) {
+            MessageService.ReplyMessage(messageInfo, 'You can\'t start a Battle Royale Sudoku as you\'re about to begin a Sudoku already!', false, true);
+            CommandManager.SetCooldown(messageInfo, 10);
+            return;
+        }
+
+        PlayManager.PrepareRoyalePlay(guild, player, messageInfo.channel.id);
+
+        await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetBattleRoyaleAnnouncementEmbed());
+
+        await Utils.Sleep(Utils.GetMinutesInSeconds(SettingsConstants.BATTLE_ROYALE_DELAY_TIME));
+
+        const sudoku = await SudokuRepository.GetRandom();
+
+        const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetBattleRoyaleEmbed(sudoku));
+
+        if (message != null) {
+            PlayManager.StartRoyalePlay(sudoku, guild, player, messageInfo.message.createdAt, message.id, message.channel.id);
+        }
+
+        CommandManager.SetCooldown(messageInfo, 30);
+    }
+
     private static async GetPlayer(user: User, guild: Guild) {
         const player = await PlayerManager.GetPlayer(user.id, user.username, guild);
         if (player == null) {
             return;
-        }
-
-        const playerGuild = await PlayerGuildRepository.GetByPlayerIdAndGuildId(player, guild);
-        if (playerGuild == null) {
-            PlayerGuildRepository.New(player, guild);
         }
 
         return player;

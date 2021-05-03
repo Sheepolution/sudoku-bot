@@ -15,7 +15,7 @@ export default class PlayEmbeds {
     public static GetSinglePlayerEmbed(sudoku: Sudoku, player: Player) {
         const embed = new MessageEmbed()
             .setColor(SettingsConstants.COLORS.DEFAULT)
-            .setTitle(`Single-player Sudoku - ${player.GetName()}`)
+            .setTitle(`Singleplayer Sudoku - ${player.GetName()}`)
             .setDescription(`${sudoku.GetPuzzle()}`);
         return embed;
     }
@@ -28,7 +28,7 @@ export default class PlayEmbeds {
         return embed;
     }
 
-    public static GetRoyaleEmbed(sudoku: Sudoku) {
+    public static GetBattleRoyaleEmbed(sudoku: Sudoku) {
         const embed = new MessageEmbed()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle('Multiplayer Sudoku - Battle Royale')
@@ -53,17 +53,25 @@ export default class PlayEmbeds {
         return embed;
     }
 
+    public static GetVSChallengeCancelledEmbed(player: Player, opponent: Player) {
+        const embed = new MessageEmbed()
+            .setColor(SettingsConstants.COLORS.BAD)
+            .setTitle(`Multiplayer Sudoku - ${player.GetName()} vs ${opponent.GetName()}`)
+            .setDescription(`${player.GetName()} cancelled the challenge.`);
+        return embed;
+    }
+
     public static GetBattleRoyaleAnnouncementEmbed() {
         const embed = new MessageEmbed()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle('Multiplayer Sudoku - Battle Royale')
-            .setDescription(`In ${SettingsConstants.BATTLE_ROYALE_DELAY_TIME_TEXT} a Battle Royale Sudoku will begin! Everyone is invited to be the first to solve the sudoku!`);
+            .setDescription(`In ${SettingsConstants.BATTLE_ROYALE_DELAY_TIME_TEXT} a Battle Royale Sudoku will begin! Everyone is welcome to try and be the first to solve it!`);
         return embed;
     }
 
     public static async GetSolvedEmbed(play: Play, solver: Player, guild: Guild) {
-        const sudokuGuildRank = await PlayRepository.GetSudokuGuildRank(play, guild);
-        const sudokuGlobalRank = await PlayRepository.GetSudokuGlobalRank(play);
+        const sudokuGuildRank = await PlayRepository.GetSudokuGuildRank(play.GetSudokuId(), solver, guild);
+        const sudokuGlobalRank = await PlayRepository.GetSudokuGlobalRank(play.GetSudokuId(), solver);
 
         const fastestSolveGuildRank = await PlayerStatsRepository.GetFastestSolveGuildRank(solver, guild);
         const fastestSolveGlobalRank = await PlayerStatsRepository.GetFastestSolveGlobalRank(solver);
@@ -80,18 +88,28 @@ export default class PlayEmbeds {
             description += ` won the Multiplayer Sudoku VS ${opponent.GetName()}!`;
         }
 
+        const playDuration = play.GetDuration();
+
         description += `
 
 **Sudoku ${(await play.GetSudoku()).GetFancyId()}**
-Time: ${Utils.GetSecondsInDigitalMinutesAndSeconds(play.GetDuration())}
-Server rank: #${sudokuGuildRank}
-Global rank: #${sudokuGlobalRank}
+Time: ${Utils.GetSecondsInDigitalMinutesAndSeconds(play.GetDuration())}`;
+
+        if (playDuration < sudokuGlobalRank.duration) {
+            description += ' **NEW!**';
+        } else if (playDuration != sudokuGlobalRank.duration) {
+            description += `\nFastest time: ${Utils.GetSecondsInDigitalMinutesAndSeconds(sudokuGlobalRank.duration)}`;
+        }
+
+        description += `
+Server rank: ${sudokuGuildRank.total == 1 ? 'First solve!' : `#${sudokuGuildRank.rank} / ${sudokuGuildRank.total}`}
+Global rank: ${sudokuGlobalRank.total == 1 ? 'First solve!' : `#${sudokuGlobalRank.rank} / ${sudokuGlobalRank.total}`}
 
 **Player Stats**
 Sudokus solved: ${stats.GetSolved()}
 Streak: ${stats.GetStreak()}
 
-Fastest time: ${Utils.GetSecondsInDigitalMinutesAndSeconds(stats.GetFastestSolve())}
+Fastest time: ${Utils.GetSecondsInDigitalMinutesAndSeconds(stats.GetFastestSolve())}${stats.IsNewFastestSolve() ? ' **NEW**' : ''}
 Server rank: #${fastestSolveGuildRank}
 Global rank: #${fastestSolveGlobalRank}`;
 
@@ -104,7 +122,7 @@ Global rank: #${fastestSolveGlobalRank}`;
             description += `
 
 Current average of 5: ${Utils.GetSecondsInDigitalMinutesAndSeconds(stats.GetCurrentAverageOfFive())}
-Fastest average of 5: ${Utils.GetSecondsInDigitalMinutesAndSeconds(fastestAverageOfFive)}
+Fastest average of 5: ${Utils.GetSecondsInDigitalMinutesAndSeconds(fastestAverageOfFive)}${stats.IsNewFastestAverageOfFive() ? ' **NEW**' : ''}
 Server rank: #${fastestAverageOfFiveGuildRank}
 Global rank: #${fastestAverageOfFiveGlobalRank}`;
         }
@@ -116,12 +134,53 @@ Global rank: #${fastestAverageOfFiveGlobalRank}`;
         return embed;
     }
 
-    public static GetEditSinglePlayerSudokuEmbed(player: Player, messageUrl: string) {
+    public static async GetEditSolvedSinglePlayerSudokuEmbed(play: Play, messageUrl: string) {
+
+        var title: string;
+        var description: string;
+
+        const playType = play.GetType();
+        if (playType == PlayType.Single) {
+            title = `Singleplayer Sudoku - ${(await play.GetCreator()).GetName()}`;
+        } else if (playType == PlayType.VS) {
+            const player = await play.GetCreator();
+            const opponent = await play.GetOpponent(player);
+            const solver = await play.GetSolver();
+
+            title = `Multiplayer Sudoku - ${player.GetName()} VS ${opponent}`;
+            description = `Solved by ${solver.GetName()}!`;
+        } else if (playType == PlayType.Royale) {
+            const solver = await play.GetSolver();
+            title = 'Multiplayer Sudoku - Battle Royale';
+            description = `Solved by ${solver.GetName()}!`;
+        }
+
         const embed = new MessageEmbed()
-            .setColor(SettingsConstants.COLORS.DEFAULT)
-            .setTitle(`Singleplayer Sudoku - ${player.GetName()} `)
-            .setDescription(`[Solved!](${messageUrl})`);
+            .setColor(SettingsConstants.COLORS.GOOD)
+            .setTitle(title)
+            .setDescription(`[${description}](${messageUrl})`);
         return embed;
     }
 
+    public static async GetEditCancelledSinglePlayerSudokuEmbed(play: Play) {
+        var title: string;
+
+        const playType = play.GetType();
+        if (playType == PlayType.Single) {
+            title = `Singleplayer Sudoku - ${(await play.GetCreator()).GetName()}`;
+        } else if (playType == PlayType.VS) {
+            const player = await play.GetCreator();
+            const opponent = await play.GetOpponent(player);
+            title = `Multiplayer Sudoku - ${player.GetName()} VS ${opponent}`;
+        } else if (playType == PlayType.Royale) {
+            title = 'Multiplayer Sudoku - Battle Royale';
+        }
+
+        const embed = new MessageEmbed()
+            .setColor(SettingsConstants.COLORS.BAD)
+            .setTitle(title)
+            .setDescription('Cancelled');
+        return embed;
+
+    }
 }

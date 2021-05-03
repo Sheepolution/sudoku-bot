@@ -4,6 +4,7 @@ import { PlayType } from '../Enums/PlayType';
 import Guild from '../Objects/Guild';
 import Player from '../Objects/Player';
 import { PlayState } from '../Enums/PlayState';
+import { PlayerState } from '../Enums/PlayerState';
 
 const { Model } = require('objection');
 
@@ -13,7 +14,7 @@ export default class PlayModel extends Model {
         return 'play';
     }
 
-    public static async New(sudoku: Sudoku, guild: Guild, creator: Player, startDate: Date, type: PlayType, messageId: string, opponent?: Player) {
+    public static async New(sudoku: Sudoku, guild: Guild, creator: Player, startDate: Date, type: PlayType, messageId: string, channelId: string, opponent?: Player) {
         const playId = Utils.UUID();
 
         const play = await PlayModel.query()
@@ -27,6 +28,7 @@ export default class PlayModel extends Model {
                 start_date: Utils.GetDateAsString(startDate),
                 type: type,
                 message_id: messageId,
+                channel_id: channelId,
             });
 
         return play;
@@ -36,29 +38,59 @@ export default class PlayModel extends Model {
         return await PlayModel.query().findById(id);
     }
 
-    public static async GetSudokuGuildRank(playId: string, sudokuId: number, guildId: string) {
+    public static async GetUnfinishedPlayByPlayerId(playerId: string) {
+        const play = await PlayModel.query()
+            .where((builder: any) => {
+                builder.where('creator_id', playerId).orWhere('opponent_id', playerId);
+            })
+            .andWhere({ state: PlayState.Started })
+            .first();
+
+        return play;
+    }
+
+    public static async GetUnfinishedRoyalePlayByChannelId(guildId: string, channelId: string) {
+        const play = await PlayModel.query()
+            .where({ guild_id: guildId, channel_id: channelId, state: PlayState.Started })
+            .first();
+
+        return play;
+    }
+
+    public static async GetSudokuGuildRank(playerId: string, sudokuId: number, guildId: string) {
         const knex = PlayModel.knex();
         return (await knex.raw(`
-            select toplist.rank_number from
-                (select id, rank () over ( order by duration ) rank_number from play
+            select total.total, toplist.rank from
+                (select solver_id, rank () over ( order by duration ) rank from play
                     where state = ? 
                     and sudoku_id = ?
                     and guild_id = ?
-                ) as toplist
-            where toplist.id = ? limit 1;
-        `, [PlayState.Solved, sudokuId, guildId, playId])).rows[0].rank_number;
-    }
-
-    public static async GetSudokuGlobalRank(playId: string, sudokuId: number) {
-        const knex = PlayModel.knex();
-        return (await knex.raw(`
-            select toplist.rank_number from
-                (select id, rank () over ( order by duration ) rank_number from play
+                ) as toplist,
+                (select count(id) as total from play
                     where state = ? 
                     and sudoku_id = ?
-                ) as toplist
-            where toplist.id = ? limit 1;
-        `, [PlayState.Solved, sudokuId, playId])).rows[0].rank_number;
+                    and guild_id = ?
+                ) as total
+            where toplist.solver_id = ?
+            limit 1;
+        `, [PlayState.Solved, sudokuId, guildId, PlayState.Solved, sudokuId, guildId, playerId])).rows[0];
+    }
+
+    public static async GetSudokuGlobalRank(playerId: string, sudokuId: number) {
+        const knex = PlayModel.knex();
+        return (await knex.raw(`
+            select total.total, toplist.rank, toplist.duration from
+                (select solver_id, duration, rank () over ( order by duration ) rank from play
+                    where state = ? 
+                    and sudoku_id = ?
+                ) as toplist,
+                (select count(id) as total from play
+                    where state = ? 
+                    and sudoku_id = ?
+                ) as total
+            where toplist.solver_id = ?
+            limit 1;
+        `, [PlayState.Solved, sudokuId, PlayState.Solved, sudokuId, playerId])).rows[0];
     }
 
     public static async GetAverageOfLastFive(playerId: string) {
@@ -72,6 +104,28 @@ export default class PlayModel extends Model {
                     order by solve_date desc limit 5
                 ) as lastFiveSolves;
         `, [PlayState.Solved, playerId, PlayType.Single])).rows[0].avg;
+    }
+
+    public static async GetTopFastestSpecificSudokuSolves(sudokuId: number, guildId?: string) {
+        var bindings: Array<any> = [PlayState.Solved, sudokuId, PlayerState.Active];
+
+        if (guildId != null) {
+            bindings.push(guildId);
+        }
+
+        const knex = PlayModel.knex();
+        return (await knex.raw(`
+            select distinct on (list.name) list.name, duration from 
+            (select name, sudoku_id, duration from play
+                join player on player.id = play.solver_id
+                where play.state = ?
+                and sudoku_id = ?
+                and player.state = ?
+                ${guildId == null ? '' : 'and guild_id = ?'}
+                order by duration
+            ) as list
+            fetch first 10 rows only;
+        `, bindings)).rows;
     }
 
     public static async DeleteById(id: string) {

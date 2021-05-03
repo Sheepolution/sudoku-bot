@@ -16,7 +16,7 @@ export default class PlayerModel extends Model {
             .insert({
                 id: playerId,
                 discord_id: discordId,
-                state: PlayerState.Joined,
+                state: PlayerState.Active,
                 join_date: Utils.GetNowString(),
                 name: name,
                 custom_name: false,
@@ -43,9 +43,9 @@ export default class PlayerModel extends Model {
 
     public GetState() {
         switch (this.state) {
-            case '0': return PlayerState.Joined;
+            case '0': return PlayerState.Active;
             case '1': return PlayerState.Banned;
-            default: return PlayerState.Joined;
+            default: return PlayerState.Active;
         }
     }
 }

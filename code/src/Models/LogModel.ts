@@ -19,7 +19,7 @@ export default class LogModel extends Model {
                 id: logId,
                 guild_id: guild?.GetId(),
                 player_id: player?.GetId(),
-                sudoku_id: subjectId,
+                subject_id: subjectId,
                 type: logType,
                 log_date: Utils.GetNowString(),
             });

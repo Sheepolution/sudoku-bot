@@ -21,15 +21,6 @@ export default class AdminHandler {
             case commands.HELP:
                 this.OnHelp(messageInfo, guild);
                 break;
-            case commands.DEVELOPER:
-                this.OnDeveloper(messageInfo);
-                break;
-            case commands.DONATE:
-                this.OnDonate(messageInfo);
-                break;
-            case commands.INVITE:
-                this.OnInvite(messageInfo);
-                break;
             case commands.PREFIX:
                 this.OnPrefix(messageInfo, guild, commandInfo.args[0]);
                 break;
@@ -43,23 +34,8 @@ export default class AdminHandler {
     }
 
     private static OnHelp(messageInfo: IMessageInfo, guild: Guild) {
-        MessageService.ReplyEmbed(messageInfo, GeneralEmbeds.GetHelpEmbed(guild));
+        MessageService.ReplyEmbed(messageInfo, GeneralEmbeds.GetHelpEmbed(guild, true));
         CommandManager.SetCooldown(messageInfo, 10);
-    }
-
-    private static OnDeveloper(messageInfo: IMessageInfo) {
-        MessageService.ReplyEmbed(messageInfo, GeneralEmbeds.GetDeveloperEmbed());
-        CommandManager.SetCooldown(messageInfo, 60);
-    }
-
-    private static OnDonate(messageInfo: IMessageInfo) {
-        MessageService.ReplyEmbed(messageInfo, GeneralEmbeds.GetDonationEmbed());
-        CommandManager.SetCooldown(messageInfo, 60);
-    }
-
-    private static OnInvite(messageInfo: IMessageInfo) {
-        MessageService.ReplyEmbed(messageInfo, GeneralEmbeds.GetInviteEmbed());
-        CommandManager.SetCooldown(messageInfo, 60);
     }
 
     private static OnPrefix(messageInfo: IMessageInfo, guild: Guild, prefix: string) {
@@ -85,23 +61,23 @@ export default class AdminHandler {
         if (!action?.isFilled() || action.trim().toLowerCase() == 'add') {
             var channel = await ChannelRepository.GetByDiscordId(messageInfo.channel.id);
             if (channel != null) {
-                MessageService.ReplyMessage(messageInfo, 'This channel was already added as a sudoku channel.', undefined, true);
+                MessageService.ReplyMessage(messageInfo, 'This channel was already added as a Sudoku channel.', undefined, true);
             } else {
                 ChannelRepository.New(messageInfo.channel.id, guild);
-                MessageService.ReplyMessage(messageInfo, 'This channel is now a sudoku channel.', true, true);
+                MessageService.ReplyMessage(messageInfo, 'This channel is now a Sudoku channel.', true, true);
                 LogService.Log(LogType.ChannelAdded, guild);
             }
         } else if (action == 'remove') {
             var channel = await ChannelRepository.GetByDiscordId(messageInfo.channel.id);
             if (channel != null) {
                 ChannelRepository.Delete(channel);
-                MessageService.ReplyMessage(messageInfo, 'This channel is no longer a sudoku channel.', true, true);
+                MessageService.ReplyMessage(messageInfo, 'This channel is no longer a Sudoku channel.', true, true);
                 LogService.Log(LogType.ChannelRemoved, guild);
             } else {
-                MessageService.ReplyMessage(messageInfo, 'This was not a sudoku channel.', undefined, true);
+                MessageService.ReplyMessage(messageInfo, 'This was not a Sudoku channel.', undefined, true);
             }
         } else {
-            MessageService.ReplyMessage(messageInfo, `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.CHANNEL[0], ['add/remove'], true)} to add or remove the channel from the list of sudoku channels.`, false, true);
+            MessageService.ReplyMessage(messageInfo, `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.CHANNEL[0], ['add/remove'], true)} to add or remove the channel from the list of Sudoku channels.`, false, true);
             return;
         }
 

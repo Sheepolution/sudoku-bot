@@ -1,6 +1,6 @@
 import CommandHandler from '../Handlers/CommandHandler';
 import IMessageInfo from '../Interfaces/IMessageInfo';
-import { Message, MessageReaction, User } from 'discord.js';
+import { Guild as DiscordGuild, Message, MessageReaction, User } from 'discord.js';
 import DiscordUtils from '../Utils/DiscordUtils';
 import Guild from '../Objects/Guild';
 import GuildRepository from '../Repositories/GuildRepository';
@@ -13,6 +13,8 @@ import MessageHandler from '../Handlers/MessageHandler';
 import ReactionManager from './ReactionManager';
 import ChannelService from '../Services/ChannelService';
 import Discord from '../Providers/Discord';
+import LogService from '../Services/LogService';
+import { LogType } from '../Enums/LogType';
 
 export default class BotManager {
 
@@ -93,5 +95,16 @@ export default class BotManager {
     public static async ClearPrefixCache(messageInfo: IMessageInfo) {
         var prefixKey = this.prefixKey + messageInfo.message.guild.id;
         await Redis.del(prefixKey);
+    }
+
+    public static async OnAddedToGuild(discordGuild: DiscordGuild) {
+        const guild = await GuildRepository.GetOrCreateByDiscordId(discordGuild.id);
+        await guild.OnJoin();
+    }
+
+    public static async OnKickedFromGuild(discordGuild: DiscordGuild) {
+        const guild = await GuildRepository.GetOrCreateByDiscordId(discordGuild.id);
+        await guild.OnLeave();
+        LogService.Log(LogType.GuildRemoved, guild);
     }
 }

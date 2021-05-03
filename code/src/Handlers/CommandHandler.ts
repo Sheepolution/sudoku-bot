@@ -9,6 +9,8 @@ import { Utils } from '../Utils/Utils';
 import CommandUtils from '../Utils/CommandUtils';
 import PlayHandler from './PlayHandler';
 import AdminHandler from './AdminHandler';
+import TopHandler from './TopHandler';
+import GeneralHandler from './GeneralHandler';
 
 export default class CommandHandler {
 
@@ -54,7 +56,13 @@ export default class CommandHandler {
             }
         }
 
-        PlayHandler.OnCommand(messageInfo, guild);
+        if (PlayHandler.OnCommand(messageInfo, guild)) {
+            return;
+        } else if (TopHandler.OnCommand(messageInfo, guild)) {
+            return;
+        } else if (GeneralHandler.OnCommand(messageInfo, guild)) {
+            return;
+        }
     }
 
     public static GetCommand(command: string) {

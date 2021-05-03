@@ -11,16 +11,16 @@ export default class PlayerGuildModel extends Model {
     }
 
     public static async New(player: Player, guild: Guild) {
-        const playersGuildsId = Utils.UUID();
+        const playersGuildId = Utils.UUID();
 
-        const play = await PlayerGuildModel.query()
+        const playerGuild = await PlayerGuildModel.query()
             .insert({
-                id: playersGuildsId,
+                id: playersGuildId,
                 player_id: player.GetId(),
                 guild_id: guild.GetId(),
             });
 
-        return play;
+        return playerGuild;
     }
 
     public static async GetByPlayerIdAnGuildId(playerId: string, guildId: string) {

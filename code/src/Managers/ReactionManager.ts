@@ -10,6 +10,9 @@ export default class ReactionManager {
             case EmojiConstants.STATUS.GOOD:
                 PlayHandler.OnAcceptChallenge(messageInfo);
                 return;
+            case EmojiConstants.STATUS.BAD:
+                PlayHandler.OnDeclineChallenge(messageInfo);
+                return;
         }
     }
 }

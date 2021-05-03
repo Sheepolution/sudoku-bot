@@ -21,9 +21,9 @@ export default class GuildRepository {
     }
 
     public static async GetById(guildId: string) {
-        const event = await CacheManager.Get(GuildRepository, GuildModel.GetById, [guildId], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
-        const eventByDiscordId = await this.GetByDiscordId(event.GetDiscordId());
-        return eventByDiscordId;
+        const guild = await CacheManager.Get(GuildRepository, GuildModel.GetById, [guildId], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
+        const guildByDiscordId = await this.GetByDiscordId(guild.GetDiscordId());
+        return guildByDiscordId;
     }
 
     public static async GetOrCreateByDiscordId(discordId: string) {

@@ -12,6 +12,8 @@ export default class PlayerStats {
     private streak: number;
     private fastestAverageOfFive: number;
     private currentAverageOfFive: number;
+    private newFastestSolve: boolean;
+    private newFastestAverageOfFive: boolean;
 
     public ApplyModel(model: PlayModel) {
         this.model = model;
@@ -21,6 +23,8 @@ export default class PlayerStats {
         this.fastestSolveSudokuId = model.fastestSolve;
         this.streak = model.streak;
         this.fastestAverageOfFive = model.fastest_avg_of_five;
+        this.newFastestSolve = false;
+        this.newFastestAverageOfFive = false;
     }
 
     public GetId() {
@@ -64,6 +68,9 @@ export default class PlayerStats {
     }
 
     public async OnSolve(play: Play) {
+        this.newFastestSolve = false;
+        this.newFastestAverageOfFive = false;
+
         const updateObject: any = {};
         this.solved += 1;
         updateObject.solved = this.solved;
@@ -79,6 +86,7 @@ export default class PlayerStats {
                 if (this.fastestAverageOfFive == null || this.currentAverageOfFive < this.fastestAverageOfFive) {
                     this.fastestAverageOfFive = this.currentAverageOfFive;
                     updateObject.fastest_avg_of_five = this.fastestAverageOfFive;
+                    this.newFastestAverageOfFive = true;
                 }
             }
         }
@@ -89,8 +97,17 @@ export default class PlayerStats {
             this.fastestSolveSudokuId = play.GetSudokuId();
             updateObject.fastest_solve = this.fastestSolve;
             updateObject.fastest_solve_sudoku_id = this.fastestSolveSudokuId;
+            this.newFastestSolve = true;
         }
 
         await this.model.Update(updateObject);
+    }
+
+    public IsNewFastestSolve() {
+        return this.newFastestSolve;
+    }
+
+    public IsNewFastestAverageOfFive() {
+        return this.newFastestAverageOfFive;
     }
 }

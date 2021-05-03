@@ -1,21 +1,23 @@
 export default class CommandConstants {
     public static readonly COMMANDS = {
-        // Master
-        LOCK_COMMANDS: ['lock-commands'],
-        UNLOCK_COMMANDS: ['unlock-commands'],
-        CACHE_INFO: ['cache-info'],
-        EMPTY_CACHE: ['empty-cache'],
-        DM_INFO: ['dm-info'],
-
         // Admin
         PREFIX: ['prefix'],
         CHANNEL: ['channel'],
 
         // Sudoku
         PLAY: ['play'],
+        STOP: ['stop', 'quit', 'exit', 'cancel'],
 
-        // Both
+        // Player
+        NAME: ['name'],
+        STATS: ['stats', 'statistics'],
+
+        // Top list
+        TOP: ['top', 'rank', 'best', 'list'],
+
+        // General
         HELP: ['help', 'about'],
+        RULES: ['rules'],
         INVITE: ['invite', 'support'],
         GUIDE: ['guide'],
         COMMANDS: ['commands'],

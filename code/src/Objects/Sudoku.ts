@@ -1,4 +1,5 @@
 import SudokuModel from '../Models/SudokuModel';
+import SudokuUtils from '../Utils/SudokuUtils';
 
 export default class Sudoku {
 
@@ -22,7 +23,7 @@ export default class Sudoku {
     }
 
     public GetFancyId() {
-        return `#${this.id.toString().padStart(4, '0')}`;
+        return SudokuUtils.GetFancyId(this.id);
     }
 
     public GetPuzzle() {

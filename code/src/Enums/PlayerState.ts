@@ -1,4 +1,4 @@
 export enum PlayerState {
-    Joined = '00',
+    Active = '00',
     Banned = '01',
 }

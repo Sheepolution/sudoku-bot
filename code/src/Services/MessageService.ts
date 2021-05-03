@@ -7,7 +7,7 @@ export default class MessageService {
 
     public static async ReplyMessage(messageInfo: IMessageInfo, text: string, good?: boolean, mention?: boolean, embed?: MessageEmbed, oldMessage?: Message) {
         if (embed) {
-            if (!await DiscordService.CheckPermission(messageInfo, 'EMBED_LINKS')) {
+            if (!await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'EMBED_LINKS')) {
                 return;
             }
         }
@@ -28,7 +28,7 @@ export default class MessageService {
     }
 
     public static async ReplyEmbed(messageInfo: IMessageInfo, embed: MessageEmbed, text?: string, oldMessage?: Message) {
-        if (!await DiscordService.CheckPermission(messageInfo, 'EMBED_LINKS')) {
+        if (!await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'EMBED_LINKS')) {
             return;
         }
 

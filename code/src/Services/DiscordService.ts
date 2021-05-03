@@ -124,14 +124,35 @@ export default class DiscordService {
         return member.hasPermission('MANAGE_CHANNELS') || member.hasPermission('MANAGE_MESSAGES') || member.hasPermission('MANAGE_ROLES');
     }
 
-    public static async CheckPermission(messageInfo: IMessageInfo, permission: PermissionResolvable, action?: string, sendMessage: boolean = true) {
-        const botMember = await DiscordService.FindBotMember(messageInfo.guild);
-        const permissions = botMember.permissionsIn(messageInfo.channel);
+    public static async CheckGuildPermission(guild: Guild, permission: PermissionResolvable, action?: string, messageInfo?: IMessageInfo) {
+        if (guild == null) {
+            return true;
+        }
+
+        const botMember = await DiscordService.FindBotMember(guild);
+        if (botMember.hasPermission(permission)) {
+            return true;
+        }
+
+        if (messageInfo != null) {
+            MessageService.ReplyMessage(messageInfo, `I don't have permission to ${DiscordUtils.GetUserFriendlyPermissionText(permission)}${action?.isFilled() ? `, so I can't ${action}.` : '.'}`, false);
+        }
+
+        return false;
+    }
+
+    public static async CheckChannelPermission(channel: Channel, guild: Guild, permission: PermissionResolvable, action?: string, messageInfo?: IMessageInfo) {
+        if (guild == null) {
+            return true;
+        }
+
+        const botMember = await DiscordService.FindBotMember(guild);
+        const permissions = botMember.permissionsIn(channel);
         if (permissions.has(permission)) {
             return true;
         }
 
-        if (sendMessage) {
+        if (messageInfo) {
             MessageService.ReplyMessage(messageInfo, `I don't have permission to ${DiscordUtils.GetUserFriendlyPermissionText(permission)}${action?.isFilled() ? `, so I can't ${action}.` : '.'}`, false);
         }
 
@@ -191,7 +212,7 @@ export default class DiscordService {
     }
 
     public static async RemoveAllReactions(messageInfo: IMessageInfo, message: Message) {
-        if (DiscordService.CheckPermission(messageInfo, 'MANAGE_MESSAGES', null, false)) {
+        if (await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'MANAGE_MESSAGES')) {
             await message.reactions.removeAll().catch();
         }
     }

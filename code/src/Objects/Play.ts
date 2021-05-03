@@ -1,6 +1,8 @@
+import SettingsConstants from '../Constants/SettingsConstants';
 import { PlayState } from '../Enums/PlayState';
 import { PlayType } from '../Enums/PlayType';
 import PlayModel from '../Models/PlayModel';
+import GuildRepository from '../Repositories/GuildRepository';
 import PlayerRepository from '../Repositories/PlayerRepository';
 import SudokuRepository from '../Repositories/SudokuRepository';
 import { Utils } from '../Utils/Utils';
@@ -31,8 +33,20 @@ export default class Play {
         return this.id;
     }
 
+    public GetGuildId() {
+        return this.model.guild_id;
+    }
+
+    public GetGuild() {
+        return GuildRepository.GetById(this.model.guild_id);
+    }
+
+    public GetChannelId() {
+        return this.model.channel_id;
+    }
+
     public IsSolved() {
-        return this.state = PlayState.Solved;
+        return this.state == PlayState.Solved;
     }
 
     public GetStartDate() {
@@ -63,6 +77,18 @@ export default class Play {
         return this.messageId;
     }
 
+    public GetCreatorId() {
+        return this.model.creator_id;
+    }
+
+    public GetOpponentId() {
+        return this.model.opponent_id;
+    }
+
+    public async GetCreator() {
+        return PlayerRepository.GetById(this.model.creator_id);
+    }
+
     public async GetOpponent(player: Player) {
         if (player.GetId() == this.model.creator_id) {
             return await PlayerRepository.GetById(this.model.opponent_id);
@@ -71,9 +97,33 @@ export default class Play {
         }
     }
 
-    public async OnSolve(solver: Player, solveDate: Date) {
+    public async GetSolver() {
+        if (this.model.solver_id == null) {
+            return null;
+        }
 
+        return PlayerRepository.GetById(this.model.solver_id);
+    }
+
+    public IsPlayerCreator(player: Player) {
+        return player.GetId() == this.model.creator_id;
+    }
+
+    public IsExpired() {
+        return Utils.GetNow().getTime() - this.startDate.getTime() > Utils.GetHoursInMiliSeconds(SettingsConstants.PLAY_EXPIRE_TIME);
+    }
+
+    public async GetMessageUrl() {
+        const guild = await GuildRepository.GetById(this.model.guild_id);
+        return `${SettingsConstants.BASE_DISCORD_MESSAGE_URL}${guild.GetDiscordId()}/${this.model.channel_id}/${this.model.message_id}`;
+    }
+
+    public async OnSolve(solver: Player, solveDate: Date) {
         const duration = Utils.GetDateDifferenceInSeconds(this.startDate, solveDate);
+
+        if (duration < SettingsConstants.MINIMUM_POSSIBLE_SOLVE_TIME + Utils.Random(0, 5.82)) {
+            return false;
+        }
 
         this.duration = duration;
         this.solveDate = solveDate;
@@ -85,5 +135,7 @@ export default class Play {
             state: PlayState.Solved,
             duration: duration,
         });
+
+        return true;
     }
 }

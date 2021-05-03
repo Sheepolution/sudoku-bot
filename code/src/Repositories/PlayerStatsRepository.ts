@@ -50,6 +50,36 @@ export default class PlayerStatsRepository {
         return rank;
     }
 
+    public static async GetFastestSolveGuildList(guild: Guild) {
+        const rank = await PlayerStatsModel.GetFastestSolveGuildList(guild.GetId());
+        return rank;
+    }
+
+    public static async GetFastestSolveGlobalList() {
+        const rank = await PlayerStatsModel.GetFastestSolveGlobalList();
+        return rank;
+    }
+
+    public static async GetFastestAverageOfFiveGuildList(guild: Guild) {
+        const rank = await PlayerStatsModel.GetFastestAverageOfFiveGuildList(guild.GetId());
+        return rank;
+    }
+
+    public static async GetFastestAverageOfFiveGlobalList() {
+        const rank = await PlayerStatsModel.GetFastestAverageOfFiveGlobalList();
+        return rank;
+    }
+
+    public static async GetMostSolvedGuildList(guild: Guild) {
+        const rank = await PlayerStatsModel.GetMostSolvedGuildList(guild.GetId());
+        return rank;
+    }
+
+    public static async GetMostSolvedGlobalList() {
+        const rank = await PlayerStatsModel.GetMostSolvedGlobalList();
+        return rank;
+    }
+
     public static ClearById(id: string) {
         CacheManager.Clear(PlayerStatsRepository, PlayerStatsModel.GetById, [id]);
     }

@@ -1,3 +1,4 @@
+import SettingsConstants from '../Constants/SettingsConstants';
 import { PlayerState } from '../Enums/PlayerState';
 import PlayerModel from '../Models/PlayerModel';
 import PlayerStatsRepository from '../Repositories/PlayerStatsRepository';
@@ -13,6 +14,8 @@ export default class Player {
     private leaveDate?: Date;
     private name: string;
     private customName: boolean;
+    private strikes: number;
+    private preparingPlay: boolean;
 
     public ApplyModel(model: PlayerModel) {
         this.model = model;
@@ -22,6 +25,8 @@ export default class Player {
         this.leaveDate = Utils.GetDateOrNull(model.leave_date);
         this.name = model.name;
         this.customName = model.custom_name;
+        this.strikes = model.strikes || 0;
+        this.preparingPlay = false;
     }
 
     public GetId() {
@@ -44,8 +49,16 @@ export default class Player {
         return this.name;
     }
 
+    public IsBanned() {
+        return this.state == PlayerState.Banned;
+    }
+
     public async SetName(name: string, custom: boolean) {
         if (this.name == name) {
+            return;
+        }
+
+        if (!custom && this.customName) {
             return;
         }
 
@@ -58,7 +71,28 @@ export default class Player {
         await this.model.Update(updateObject);
     }
 
+    public IsPreparingPlay() {
+        return this.preparingPlay;
+    }
+
+    public SetPreparingPlay(preparingPlay: boolean) {
+        this.preparingPlay = preparingPlay;
+    }
+
     public async GetStats() {
         return await PlayerStatsRepository.GetByPlayerId(this.id);
+    }
+
+    public async OnCheating() {
+        this.strikes += 1;
+
+        if (this.strikes > SettingsConstants.MAX_ALLOWED_STRIKES) {
+            this.state = PlayerState.Banned;
+        }
+
+        await this.model.Update({
+            state: this.state,
+            strikes: this.strikes,
+        });
     }
 }

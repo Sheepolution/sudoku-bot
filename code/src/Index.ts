@@ -10,9 +10,12 @@ class Main {
 
     constructor() {
         Discord.SetEventReadyCallback(BotManager.OnReady);
+        Discord.SetEventGuildCreateCallback(BotManager.OnAddedToGuild);
+        Discord.SetEventGuildDeleteCallback(BotManager.OnKickedFromGuild);
         Discord.SetEventMessageCallback(BotManager.OnMessage);
         Discord.SetEventMessageUpdateCallback(BotManager.OnMessage);
         Discord.SetEventReactionAddCallback(BotManager.OnReaction);
+        // TODO: Guild add/remove
         Discord.Init();
     }
 }

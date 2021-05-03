@@ -104,6 +104,15 @@ export module Utils {
         return date.toISOString();
     }
 
+    export function GetDateAsUserFriendlyString(date: Date) {
+        if (date == null || date.toISOString == null) {
+            return null;
+        }
+
+        var isoString = date.toISOString();
+        return isoString.replace('T', ' ').slice(0, -5);
+    }
+
     export function GetDateDifferenceInSeconds(a: Date, b: Date) {
         return (b.getTime() - a.getTime()) / 1000;
     }

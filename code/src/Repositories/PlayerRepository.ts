@@ -37,8 +37,4 @@ export default class PlayerRepository {
 
         return player;
     }
-
-    public static ClearManyByDiscordId(discordId: string) {
-        CacheManager.Clear(PlayerRepository, PlayerModel.GetManyByDiscordId, [discordId]);
-    }
 }
