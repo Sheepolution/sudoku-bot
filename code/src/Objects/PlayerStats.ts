@@ -63,7 +63,14 @@ export default class PlayerStats {
         return this.fastestAverageOfFive;
     }
 
-    public GetCurrentAverageOfFive() {
+    public async GetCurrentAverageOfFive() {
+        if (this.streak >= 5) {
+            const averageOfFive = await PlayModel.GetAverageOfLastFive(this.model.player_id);
+            this.currentAverageOfFive = averageOfFive;
+        } else {
+            this.currentAverageOfFive = null;
+        }
+
         return this.currentAverageOfFive;
     }
 
@@ -88,6 +95,8 @@ export default class PlayerStats {
                     updateObject.fastest_avg_of_five = this.fastestAverageOfFive;
                     this.newFastestAverageOfFive = true;
                 }
+            } else {
+                this.currentAverageOfFive = null;
             }
         }
 

@@ -119,9 +119,10 @@ Global rank: #${fastestSolveGlobalRank}`;
             const fastestAverageOfFiveGuildRank = await PlayerStatsRepository.GetFastestAverageOfFiveGuildRank(solver, guild);
             const fastestAverageOfFiveGlobalRank = await PlayerStatsRepository.GetFastestAverageOfFiveGlobalRank(solver);
 
-            description += `
+            const currentAverageOfFive = await stats.GetCurrentAverageOfFive();
 
-Current average of 5: ${Utils.GetSecondsInDigitalMinutesAndSeconds(stats.GetCurrentAverageOfFive())}
+            description += `
+${currentAverageOfFive == null ? '' : `\nCurrent average of 5: ${Utils.GetSecondsInDigitalMinutesAndSeconds(currentAverageOfFive)}`}
 Fastest average of 5: ${Utils.GetSecondsInDigitalMinutesAndSeconds(fastestAverageOfFive)}${stats.IsNewFastestAverageOfFive() ? ' **NEW**' : ''}
 Server rank: #${fastestAverageOfFiveGuildRank}
 Global rank: #${fastestAverageOfFiveGlobalRank}`;
