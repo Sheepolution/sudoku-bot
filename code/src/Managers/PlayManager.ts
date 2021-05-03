@@ -161,6 +161,7 @@ export default class PlayManager {
 
                 this.HandleUnfinishedPlay(play);
                 resultInfo.reason = 'cheated';
+                return resultInfo;
             }
 
             const playerStats = await player.GetStats();
