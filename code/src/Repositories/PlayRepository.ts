@@ -12,6 +12,10 @@ export default class PlayRepository {
     public static async New(sudoku: Sudoku, guild: Guild, creator: Player, startDate: Date, type: PlayType, messageId: string, channelId: string, opponent?: Player) {
         const play = this.Make(await PlayModel.New(sudoku, guild, creator, startDate, type, messageId, channelId, opponent));
         CacheManager.Set(play, PlayRepository, PlayModel.GetById, [play.GetId()], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
+        CacheManager.Set(play, PlayRepository, PlayModel.GetUnfinishedPlayByPlayerId, [creator.GetId()], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
+        if (type == PlayType.Royale) {
+            CacheManager.Set(play, PlayRepository, PlayModel.GetUnfinishedRoyalePlayByChannelId, [guild.GetId(), channelId]);
+        }
         return play;
     }
 
