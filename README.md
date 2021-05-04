@@ -20,7 +20,7 @@ There are 3 game modes.
 
 **Singleplayer** - `sudoku>play` - Get a Sudoku and solve it.
 
-**Multiplayer** - `sudoku>play vs @member` Challenge someone. The first one to solve the Sudoku wins.
+**Multiplayer** - `sudoku>play vs @member` - Challenge someone. The first one to solve the Sudoku wins.
 
 **Battle Royale** - `sudoku>play royale` - Everyone is allowed to try and be the first to solve the Sudoku.
 
