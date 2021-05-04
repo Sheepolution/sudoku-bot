@@ -1,4 +1,5 @@
 import CommandConstants from '../Constants/CommandConstants';
+import SudokuConstants from '../Constants/SudokuConstants';
 import TopListEmbeds from '../Embeds/TopListEmbed';
 import { TopListScaleType } from '../Enums/TopListScaleType';
 import { TopListType } from '../Enums/TopListType';
@@ -48,6 +49,11 @@ export default class TopHandler {
                 MessageService.ReplyMessage(messageInfo, `I don't know what you mean with '${whatLower}'. Use 'time', 'average', 'solved', or a Sudoku ID. (e.g. #1234).`, false, true);
                 return;
             } else {
+                if (whatNumber < 0 || whatNumber >= SudokuConstants.NUMBER_OF_SUDOKUS) {
+                    MessageService.ReplyMessage(messageInfo, 'Sudoku IDs range between #0000 and #9999', false, true);
+                    return;
+                }
+
                 type = TopListType.Sudoku;
                 sudokuId = whatNumber;
             }
