@@ -162,6 +162,7 @@ Global rank: #${fastestAverageOfFiveGlobalRank}`;
         const playType = play.GetType();
         if (playType == PlayType.Single) {
             title = `Singleplayer Sudoku - ${(await play.GetCreator()).GetName()}`;
+            description = 'Solved!';
         } else if (playType == PlayType.VS) {
             const player = await play.GetCreator();
             const opponent = await play.GetOpponent(player);
