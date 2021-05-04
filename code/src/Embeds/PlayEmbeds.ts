@@ -41,7 +41,7 @@ export default class PlayEmbeds {
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Multiplayer Sudoku - ${player.GetName()} vs ${opponent.GetName()}`)
             .setDescription(`${opponent.GetName()} has ${SettingsConstants.CHALLENGE_EXPIRE_TIME_TEXT} to accept this challenge by reacting ${EmojiConstants.STATUS.GOOD} to this message.`)
-            .setFooter(`The game will begin ${SettingsConstants.CHALLENGE_DELAY_TIME_TEXT} after it has been accepted`);
+            .setFooter(`The Sudoku will begin ${SettingsConstants.CHALLENGE_DELAY_TIME_TEXT} after it has been accepted`);
         return embed;
     }
 
