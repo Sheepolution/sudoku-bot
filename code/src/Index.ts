@@ -15,7 +15,6 @@ class Main {
         Discord.SetEventMessageCallback(BotManager.OnMessage);
         Discord.SetEventMessageUpdateCallback(BotManager.OnMessage);
         Discord.SetEventReactionAddCallback(BotManager.OnReaction);
-        // TODO: Guild add/remove
         Discord.Init();
     }
 }

@@ -69,6 +69,25 @@ export default class PlayEmbeds {
         return embed;
     }
 
+    public static async GetReminderEmbed(player: Player, play: Play) {
+        const embed = new MessageEmbed()
+            .setColor(SettingsConstants.COLORS.BAD)
+            .setTitle('You\'re already playing a Sudoku!')
+            .setDescription(`You can't start a new Sudoku because you're still ${play.GetType() == PlayType.Royale ? 'hosting a Battle Royale Sudoku.' : `in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}`}
+Someone will have to solve it before you can start a new Sudoku.
+[Jump](${await play.GetMessageUrl()})`);
+        return embed;
+    }
+
+    public static async GetRoyaleReminderEmbed(play: Play) {
+        const embed = new MessageEmbed()
+            .setColor(SettingsConstants.COLORS.BAD)
+            .setTitle('There already is a Battle Royale!')
+            .setDescription(`There is already a Battle Royale Sudoku going on in this channel.
+[Jump](${await play.GetMessageUrl()})`);
+        return embed;
+    }
+
     public static async GetSolvedEmbed(play: Play, solver: Player, guild: Guild) {
         const sudokuGuildRank = await PlayRepository.GetSudokuGuildRank(play.GetSudokuId(), solver, guild);
         const sudokuGlobalRank = await PlayRepository.GetSudokuGlobalRank(play.GetSudokuId(), solver);

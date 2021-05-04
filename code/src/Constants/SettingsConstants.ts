@@ -19,7 +19,7 @@ export default class SettingsConstants {
         DEFAULT: '#29adff',
     };
 
-    public static readonly BASE_DISCORD_MESSAGE_URL = 'https://discord.gg/channels/';
+    public static readonly BASE_DISCORD_MESSAGE_URL = 'https://discord.com/channels/';
 
     public static readonly DEFAULT_PREFIX = 'sudoku>';
     public static readonly MAX_PREFIX_LENGTH = 10;

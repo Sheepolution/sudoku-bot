@@ -150,16 +150,11 @@ export default class PlayHandler {
 
         const play = await PlayManager.GetPlay(player);
         if (play != null) {
-            const playType = play.GetType();
-            if (playType == PlayType.VS) {
-                MessageService.ReplyMessage(messageInfo, `You can't start a new game because you're still in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}. One of you will have to solve it.`, false, true);
-                return;
-            } else if (playType == PlayType.Royale) {
-                // TODO: Make this an embed and add the url to the sudoku
-                MessageService.ReplyMessage(messageInfo, 'You can\'t start a new game because you\'re still hosting a Battle Royale Sudoku. Someone will have to solve it before you can start a new game.', false, true);
-                return;
-            } else {
+            if (play.GetType() == PlayType.Single) {
                 PlayManager.HandleUnfinishedPlay(play);
+            } else {
+                MessageService.ReplyEmbed(messageInfo, await PlayEmbeds.GetReminderEmbed(player, play));
+                return;
             }
         }
 
@@ -244,18 +239,11 @@ export default class PlayHandler {
 
         const play = await PlayManager.GetPlay(player);
         if (play != null) {
-            const playType = play.GetType();
-            if (playType == PlayType.VS) {
-                MessageService.ReplyMessage(messageInfo, `You can't start a new game because you're still in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}. One of you will have to solve it.`, false, true);
-                CommandManager.SetCooldown(messageInfo, 10);
-                return;
-            } else if (playType == PlayType.Royale) {
-                // TODO: Make this an embed and add the url to the sudoku
-                MessageService.ReplyMessage(messageInfo, 'You can\'t start a new game because you\'re still hosting a Battle Royale Sudoku. Someone will have to solve it before you can start a new game.', false, true);
-                CommandManager.SetCooldown(messageInfo, 10);
-                return;
-            } else {
+            if (play.GetType() == PlayType.Single) {
                 PlayManager.HandleUnfinishedPlay(play);
+            } else {
+                MessageService.ReplyEmbed(messageInfo, await PlayEmbeds.GetReminderEmbed(player, play));
+                return;
             }
         }
 
@@ -359,8 +347,6 @@ export default class PlayHandler {
     }
 
     private static async OnRoyaleGame(messageInfo: IMessageInfo, guild: Guild, player: Player) {
-        const play = await PlayManager.GetPlay(player);
-
         const royalePlay = await PlayManager.GetRoyalePlay(guild, messageInfo.channel.id);
         if (royalePlay == true) {
             MessageService.ReplyMessage(messageInfo, 'A Battle Royale Sudoku is already about to start in this channel.', false, true);
@@ -369,7 +355,7 @@ export default class PlayHandler {
         }
 
         if (royalePlay != null) {
-            MessageService.ReplyMessage(messageInfo, `There is already a Battle Royale Sudoku going on in this channel.\nLink: ${play.GetMessageUrl()}`, false, true);
+            MessageService.ReplyEmbed(messageInfo, await PlayEmbeds.GetRoyaleReminderEmbed(royalePlay));
             CommandManager.SetCooldown(messageInfo, 10);
             return;
         }
