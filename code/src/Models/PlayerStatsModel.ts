@@ -41,7 +41,7 @@ export default class PlayerStatsModel extends Model {
                         and fastest_solve is not null
                 ) as toplist
             where toplist.playerId = ? limit 1;
-            `, [guildId, playerId])).rows[0].rank_number;
+            `, [guildId, playerId])).rows[0]?.rank_number;
     }
 
     public static async GetFastestSolveGlobalRank(playerId: string) {
@@ -52,7 +52,7 @@ export default class PlayerStatsModel extends Model {
                     where fastest_solve is not null
                 ) as toplist
             where toplist.player_id = ? limit 1;
-        `, [playerId])).rows[0].rank_number;
+        `, [playerId])).rows[0]?.rank_number;
     }
 
     public static async GetFastestAverageOfFiveGuildRank(playerId: string, guildId: string) {
@@ -67,7 +67,7 @@ export default class PlayerStatsModel extends Model {
                         and fastest_avg_of_five is not null
                 ) as toplist
             where toplist.playerId = ? limit 1;
-        `, [guildId, playerId])).rows[0].rank_number;
+        `, [guildId, playerId])).rows[0]?.rank_number;
     }
 
     public static async GetFastestAverageOfFiveGlobalRank(playerId: string) {
@@ -78,7 +78,7 @@ export default class PlayerStatsModel extends Model {
                     where fastest_avg_of_five is not null
                 ) as toplist
             where toplist.player_id = ? limit 1;
-        `, [playerId])).rows[0].rank_number;
+        `, [playerId])).rows[0]?.rank_number;
     }
 
     // Lists

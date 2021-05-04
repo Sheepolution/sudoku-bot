@@ -33,6 +33,15 @@ If you believe you did not cheat you can discuss this with the developer in the 
         const fastestSolveGuildRank = await PlayerStatsRepository.GetFastestSolveGuildRank(player, guild);
         const fastestSolveGlobalRank = await PlayerStatsRepository.GetFastestSolveGlobalRank(player);
 
+        if (fastestSolveGlobalRank == null) {
+            const embed = new MessageEmbed()
+                .setColor(SettingsConstants.COLORS.BAD)
+                .setTitle(`Player Statistics - ${player.GetName()}`)
+                .setDescription('Solve at least one Sudoku to get statistics!');
+            return embed;
+            return;
+        }
+
         const stats = await player.GetStats();
 
         var description = `
