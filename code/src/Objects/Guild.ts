@@ -47,12 +47,19 @@ export default class Guild {
     public async OnJoin() {
         this.joinDate = Utils.GetNow();
         const joinDateString = Utils.GetDateAsString(this.joinDate);
-        await this.model.Update({ join_date: joinDateString, leave_date: null });
+        await this.model.Update({
+            join_date: joinDateString,
+            leave_date: null,
+            state: GuildState.Joined,
+        });
     }
 
     public async OnLeave() {
         this.leaveDate = Utils.GetNow();
         const leaveDateString = Utils.GetDateAsString(this.leaveDate);
-        await this.model.Update({ leave_date: leaveDateString });
+        await this.model.Update({
+            leave_date: leaveDateString,
+            state: GuildState.Kicked,
+        });
     }
 }
