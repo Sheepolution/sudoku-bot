@@ -1,16 +1,13 @@
 import SettingsConstants from '../Constants/SettingsConstants';
-import { LogType } from '../Enums/LogType';
 import CacheManager from '../Managers/CacheManager';
 import GuildModel from '../Models/GuildModel';
 import Guild from '../Objects/Guild';
-import LogService from '../Services/LogService';
 
 export default class GuildRepository {
 
     public static async New(discordId: string) {
         const guild = this.Make(await GuildModel.New(discordId));
         CacheManager.Set(guild, GuildRepository, GuildModel.GetByDiscordId, [discordId], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
-        LogService.Log(LogType.GuildJoined, guild, null);
         return guild;
     }
 

@@ -100,6 +100,7 @@ export default class BotManager {
     public static async OnAddedToGuild(discordGuild: DiscordGuild) {
         const guild = await GuildRepository.GetOrCreateByDiscordId(discordGuild.id);
         await guild.OnJoin();
+        LogService.Log(LogType.GuildJoined, guild);
     }
 
     public static async OnKickedFromGuild(discordGuild: DiscordGuild) {
