@@ -172,6 +172,7 @@ export default class PlayManager {
             const playType = play.GetType();
             if (playType == PlayType.VS) {
                 const opponent = await play.GetOpponent(player);
+                await Redis.del(this.GetSudokuKey(player));
                 await Redis.del(this.GetSudokuKey(opponent));
                 LogService.Log(LogType.SudokuSolvedVS, guild, player, play.GetId());
             } else if (playType == PlayType.Royale) {
