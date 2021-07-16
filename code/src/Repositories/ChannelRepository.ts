@@ -9,6 +9,7 @@ export default class ChannelRepository {
     public static async New(discordId: string, guild: Guild) {
         const channel = this.Make(await ChannelModel.New(discordId, guild));
         CacheManager.Set(channel, ChannelRepository, ChannelModel.GetByDiscordId, [discordId], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
+        CacheManager.Add(channel, ChannelRepository, ChannelModel.GetManyByGuildId, [guild.GetId()], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
         return channel;
     }
 
@@ -22,6 +23,7 @@ export default class ChannelRepository {
         ChannelModel.DeleteById(channel.GetId());
         this.ClearById(channel.GetId());
         this.ClearByDiscordId(channel.GetDiscordId());
+        this.ClearManyByGuildId(channel.GetGuildId());
     }
 
     public static async GetOrCreateByDiscordId(discordId: string, guild: Guild) {
@@ -39,11 +41,20 @@ export default class ChannelRepository {
         return guild;
     }
 
+    public static async GetManyByGuildId(guildId: string) {
+        const channel = await CacheManager.GetMany(ChannelRepository, ChannelModel.GetManyByGuildId, [guildId], SettingsConstants.CACHE_TIMEOUT_DEFAULT);
+        return channel;
+    }
+
     public static ClearById(id: string) {
         CacheManager.Clear(ChannelRepository, ChannelModel.GetById, [id]);
     }
 
     public static ClearByDiscordId(discordId: string) {
         CacheManager.Clear(ChannelRepository, ChannelModel.GetByDiscordId, [discordId]);
+    }
+
+    public static ClearManyByGuildId(guildId: string) {
+        CacheManager.Clear(ChannelRepository, ChannelModel.GetManyByGuildId, [guildId]);
     }
 }

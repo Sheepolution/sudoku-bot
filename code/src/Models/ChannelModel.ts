@@ -37,6 +37,11 @@ export default class ChannelModel extends Model {
         return model;
     }
 
+    public static async GetManyByGuildId(guildId: string) {
+        const model: Array<ChannelModel> = await ChannelModel.query().where('guild_id', guildId);
+        return model;
+    }
+
     public async Update(data: any, trx?: any) {
         await ChannelModel.query(trx)
             .findById(this.id)

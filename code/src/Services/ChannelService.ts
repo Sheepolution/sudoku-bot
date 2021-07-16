@@ -9,11 +9,11 @@ export default class ChannelService {
             return false;
         }
 
-        const channel = await ChannelRepository.GetByDiscordId(messageInfo.channel.id);
-        if (channel == null) {
-            return false;
+        const channels = await ChannelRepository.GetManyByGuildId(guild.GetId());
+        if (channels.length == 0) {
+            return true;
         }
 
-        return true;
+        return channels.find(c => c.GetDiscordId() == messageInfo.channel.id) != null;
     }
 }
