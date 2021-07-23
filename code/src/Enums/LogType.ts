@@ -1,6 +1,6 @@
 export enum LogType {
     GuildJoined = 'GuildJoined',
-    GuildRemoved = 'GuildRemoved',
+    GuildLeft = 'GuildLeft',
     ChannelAdded = 'ChannelAdded',
     ChannelRemoved = 'ChannelRemoved',
     PlayerJoined = 'PlayerJoined',
