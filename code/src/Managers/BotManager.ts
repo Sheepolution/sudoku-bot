@@ -92,8 +92,8 @@ export default class BotManager {
         ReactionManager.OnReaction(messageInfo, reaction);
     }
 
-    public static async ClearPrefixCache(messageInfo: IMessageInfo) {
-        var prefixKey = this.prefixKey + messageInfo.message.guild.id;
+    public static async ClearPrefixCache(guildDiscordId: string) {
+        var prefixKey = this.prefixKey + guildDiscordId;
         await Redis.del(prefixKey);
     }
 

@@ -1,5 +1,6 @@
 import SettingsConstants from '../Constants/SettingsConstants';
 import { GuildState } from '../Enums/GuildState';
+import BotManager from '../Managers/BotManager';
 import GuildModel from '../Models/GuildModel';
 import { Utils } from '../Utils/Utils';
 
@@ -42,6 +43,7 @@ export default class Guild {
 
         this.prefix = prefix;
         this.model.Update({ prefix: this.prefix });
+        BotManager.ClearPrefixCache(this.discordId);
     }
 
     public async OnJoin() {
@@ -62,5 +64,7 @@ export default class Guild {
             state: GuildState.Kicked,
             prefix: null,
         });
+
+        BotManager.ClearPrefixCache(this.discordId);
     }
 }
