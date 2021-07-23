@@ -65,7 +65,7 @@ export default class Player {
         const updateObject: any = { name: this.name };
 
         if (custom != null) {
-            updateObject.custom = custom;
+            updateObject.custom_name = custom;
         }
 
         await this.model.Update(updateObject);
