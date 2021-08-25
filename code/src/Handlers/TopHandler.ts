@@ -27,6 +27,7 @@ export default class TopHandler {
     public static async OnTop(messageInfo: IMessageInfo, guild: Guild, what: string, where: string) {
         if (!what?.isFilled()) {
             MessageService.ReplyMessage(messageInfo, `Use this command to get a top 10 list.\n${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['time/average/Sudoku ID', 'server/global'])}`);
+            return;
         }
 
         var type: TopListType;

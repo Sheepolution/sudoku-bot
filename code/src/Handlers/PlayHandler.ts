@@ -280,9 +280,10 @@ export default class PlayHandler {
         if (play == null) {
             MessageService.ReplyMessage(messageInfo, 'There was no Sudoku to cancel.', false, true);
             CommandManager.SetCooldown(messageInfo, 10);
+            return;
         }
 
-        if (play != null && play.GetType() == PlayType.VS) {
+        if (play.GetType() == PlayType.VS) {
             MessageService.ReplyMessage(messageInfo, `You can't stop a Multiplayer Sudoku. You or ${(await play.GetOpponent(player)).GetName()} will have to solve it.`, false, true);
             CommandManager.SetCooldown(messageInfo, 10);
             return;

@@ -216,6 +216,10 @@ export default class PlayManager {
         const discordGuild = await DiscordService.FindGuildById(guild.GetDiscordId());
         const channel: TextChannel = <TextChannel>await DiscordService.FindChannelById(play.GetChannelId(), discordGuild);
 
+        if (channel == null) {
+            return;
+        }
+
         const message = channel.messages.cache.get(play.GetMessageId());
         if (message != null) {
             try {
