@@ -45,6 +45,11 @@ export default class PlayRepository {
         return play;
     }
 
+    public static async GetPersonalPlayRank(play: Play, player: Player) {
+        const rank = await PlayModel.GetPersonalPlayRank(play.GetId(), player.GetId());
+        return rank;
+    }
+
     public static async GetSudokuGuildRank(sudokuId: number, player: Player, guild: Guild) {
         const rank = await PlayModel.GetSudokuGuildRank(player.GetId(), sudokuId, guild.GetId());
         return rank;

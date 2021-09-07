@@ -89,6 +89,7 @@ Someone will have to solve it before you can start a new Sudoku.
     }
 
     public static async GetSolvedEmbed(play: Play, solver: Player, guild: Guild) {
+        const personalPlayRank = await PlayRepository.GetPersonalPlayRank(play, solver);
         const sudokuGuildRank = await PlayRepository.GetSudokuGuildRank(play.GetSudokuId(), solver, guild);
         const sudokuGlobalRank = await PlayRepository.GetSudokuGlobalRank(play.GetSudokuId(), solver);
 
@@ -110,9 +111,10 @@ Someone will have to solve it before you can start a new Sudoku.
         const playDuration = play.GetDuration();
 
         description += `
+**Time:** ${Utils.GetSecondsInDigitalMinutesAndSeconds(play.GetDuration())}
+**Personal ranking:** #${personalPlayRank}
 
-**Sudoku ${(await play.GetSudoku()).GetFancyId()}**
-Time: ${Utils.GetSecondsInDigitalMinutesAndSeconds(play.GetDuration())}`;
+**Sudoku ${(await play.GetSudoku()).GetFancyId()}**`;
 
         if (playDuration < sudokuGlobalRank.duration) {
             description += ' **NEW!**';

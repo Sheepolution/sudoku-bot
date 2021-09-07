@@ -57,6 +57,23 @@ export default class PlayModel extends Model {
         return play;
     }
 
+    public static async GetPersonalPlayRank(playId: string, playerId: string) {
+        const knex = PlayModel.knex();
+        return (await knex.raw(`
+            select total.total, toplist.rank from
+                (select solver_id, rank () over ( order by duration ) rank from play
+                    where state = ? 
+                    and solver_id = ?
+                ) as toplist,
+                (select count(id) as total from play
+                    where state = ? 
+                    and solver = ?
+                ) as total
+            where toplist.id = ?
+            limit 1;
+        `, [PlayState.Solved, playerId, PlayState.Solved, playerId, playId])).rows[0];
+    }
+
     public static async GetSudokuGuildRank(playerId: string, sudokuId: number, guildId: string) {
         const knex = PlayModel.knex();
         return (await knex.raw(`
