@@ -4,7 +4,9 @@ import TopListEmbeds from '../Embeds/TopListEmbed';
 import { TopListScaleType } from '../Enums/TopListScaleType';
 import { TopListType } from '../Enums/TopListType';
 import IMessageInfo from '../Interfaces/IMessageInfo';
+import PlayerManager from '../Managers/PlayerManager';
 import Guild from '../Objects/Guild';
+import Player from '../Objects/Player';
 import CommandService from '../Services/CommandService';
 import MessageService from '../Services/MessageService';
 
@@ -33,6 +35,7 @@ export default class TopHandler {
         var type: TopListType;
         var whatLower = what.toLowerCase();
         var sudokuId: number;
+        var player: Player;
 
         if (whatLower == 'time' || whatLower == 'fastest') {
             type = TopListType.Time;
@@ -40,6 +43,12 @@ export default class TopHandler {
             type = TopListType.Average;
         } else if (whatLower == 'solved' || whatLower == 'most') {
             type = TopListType.Solved;
+        } else if (whatLower == 'personal') {
+            type = TopListType.Personal;
+            player = await PlayerManager.GetPlayer(messageInfo.user.id, messageInfo.user.username, guild);
+            if (player == null) {
+                MessageService.ReplyMessage(messageInfo, 'You have been banned from using this bot.', false, true);
+            }
         } else {
             if (what.startsWith('#')) {
                 what = what.slice(1);
@@ -76,6 +85,8 @@ export default class TopHandler {
             MessageService.ReplyEmbed(messageInfo, await TopListEmbeds.GetTopFastestAverageOfFive(scale == TopListScaleType.Global ? null : guild));
         } else if (type == TopListType.Solved) {
             MessageService.ReplyEmbed(messageInfo, await TopListEmbeds.GetTopMostSolved(scale == TopListScaleType.Global ? null : guild));
+        } else if (type == TopListType.Personal) {
+            MessageService.ReplyEmbed(messageInfo, await TopListEmbeds.GetTopPersonalFastest(player));
         } else if (type == TopListType.Sudoku) {
             MessageService.ReplyEmbed(messageInfo, await TopListEmbeds.GetFastestSpecificSudokuSolved(sudokuId, scale == TopListScaleType.Global ? null : guild));
         }

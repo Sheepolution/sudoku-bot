@@ -69,6 +69,11 @@ export default class PlayRepository {
         return list;
     }
 
+    public static async GetPersonalFastestSolveList(player: Player) {
+        const rank = await PlayModel.GetPersonalFastestSolveGuildList(player.GetId());
+        return rank;
+    }
+
     public static Clear(play: Play) {
         CacheManager.Clear(PlayRepository, PlayModel.GetById, [play.GetId()]);
         CacheManager.Clear(PlayRepository, PlayModel.GetUnfinishedPlayByPlayerId, [play.GetCreatorId()]);
