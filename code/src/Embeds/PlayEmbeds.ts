@@ -112,7 +112,7 @@ Someone will have to solve it before you can start a new Sudoku.
 
         description += `
 **Time:** ${Utils.GetSecondsInDigitalMinutesAndSeconds(play.GetDuration())}
-**Personal ranking:** #${personalPlayRank}
+**Personal ranking:** #${personalPlayRank.rank} / ${personalPlayRank.total}
 
 **Sudoku ${(await play.GetSudoku()).GetFancyId()}**`;
 
