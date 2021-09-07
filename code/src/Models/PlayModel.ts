@@ -67,7 +67,7 @@ export default class PlayModel extends Model {
                 ) as toplist,
                 (select count(id) as total from play
                     where state = ? 
-                    and solver = ?
+                    and solver_id = ?
                 ) as total
             where toplist.id = ?
             limit 1;
