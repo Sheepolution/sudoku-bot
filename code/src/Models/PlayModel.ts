@@ -61,7 +61,7 @@ export default class PlayModel extends Model {
         const knex = PlayModel.knex();
         return (await knex.raw(`
             select total.total, toplist.rank from
-                (select solver_id, rank () over ( order by duration ) rank from play
+                (select id, rank () over ( order by duration ) rank from play
                     where state = ? 
                     and solver_id = ?
                 ) as toplist,
