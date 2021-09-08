@@ -39,7 +39,6 @@ If you believe you did not cheat you can discuss this with the developer in the 
                 .setTitle(`Player Statistics - ${player.GetName()}`)
                 .setDescription('Solve at least one Sudoku to get statistics!');
             return embed;
-            return;
         }
 
         const stats = await player.GetStats();

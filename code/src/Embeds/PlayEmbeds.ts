@@ -1,4 +1,5 @@
 import { MessageEmbed } from 'discord.js';
+import CommandConstants from '../Constants/CommandConstants';
 import EmojiConstants from '../Constants/EmojiConstants';
 import SettingsConstants from '../Constants/SettingsConstants';
 import { PlayType } from '../Enums/PlayType';
@@ -8,6 +9,7 @@ import Player from '../Objects/Player';
 import Sudoku from '../Objects/Sudoku';
 import PlayerStatsRepository from '../Repositories/PlayerStatsRepository';
 import PlayRepository from '../Repositories/PlayRepository';
+import CommandService from '../Services/CommandService';
 import { Utils } from '../Utils/Utils';
 
 export default class PlayEmbeds {
@@ -153,6 +155,19 @@ Global rank: #${fastestAverageOfFiveGlobalRank}`;
             .setColor(SettingsConstants.COLORS.GOOD)
             .setTitle('Solved!')
             .setDescription(description);
+
+        const tips = [
+            `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['fastest'], true)} to get a list of the fastest times.`,
+            `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['fastest', 'server'], true)} to get a list of the fastest times of people in this server.`,
+            `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['solved'], true)} to get a list of most Sudokus solved.`,
+            `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['solved', 'server'], true)} to get a list of most Sudokus solved by people in this server.`,
+            `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['average'], true)} to get a list of the fastest average of five.`,
+            `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['average', 'server'], true)} to get a list of the fastest average of five in this server.`,
+            `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['personal'], true)} to get a list of your personal fastest times.`
+        ];
+
+        embed.setFooter(`Tip: ${tips.randomChoice()}`);
+
         return embed;
     }
 
