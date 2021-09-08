@@ -138,7 +138,7 @@ export default class PlayModel extends Model {
             and sudoku_id = ?
             and player.state = ?
             ${guildId == null ? '' : 'and guild_id = ?'}
-            order by duration desc
+            order by duration
             fetch first 10 rows only;
         `, bindings)).rows;
     }
