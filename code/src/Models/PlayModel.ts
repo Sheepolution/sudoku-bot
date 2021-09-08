@@ -132,15 +132,13 @@ export default class PlayModel extends Model {
 
         const knex = PlayModel.knex();
         return (await knex.raw(`
-            select distinct on (list.name) list.name, duration from 
-            (select name, sudoku_id, duration from play
-                join player on player.id = play.solver_id
-                where play.state = ?
-                and sudoku_id = ?
-                and player.state = ?
-                ${guildId == null ? '' : 'and guild_id = ?'}
-                order by duration
-            ) as list
+            select name, duration from play
+            join player on player.id = play.solver_id
+            where play.state = ?
+            and sudoku_id = ?
+            and player.state = ?
+            ${guildId == null ? '' : 'and guild_id = ?'}
+            order by duration desc
             fetch first 10 rows only;
         `, bindings)).rows;
     }
