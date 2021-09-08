@@ -113,6 +113,7 @@ Someone will have to solve it before you can start a new Sudoku.
         const playDuration = play.GetDuration();
 
         description += `
+
 **Time:** ${Utils.GetSecondsInDigitalMinutesAndSeconds(play.GetDuration())}
 **Personal ranking:** #${personalPlayRank.rank} / ${personalPlayRank.total}
 

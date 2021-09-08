@@ -104,6 +104,10 @@ export default class BotManager {
     }
 
     public static async OnKickedFromGuild(discordGuild: DiscordGuild) {
+        if (discordGuild.name == undefined) {
+            return;
+        }
+
         const guild = await GuildRepository.GetOrCreateByDiscordId(discordGuild.id);
         await guild.OnLeave();
         LogService.Log(LogType.GuildLeft, guild);
