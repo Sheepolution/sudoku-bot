@@ -69,8 +69,8 @@ export default class PlayRepository {
         return list;
     }
 
-    public static async GetPersonalFastestSolveList(player: Player) {
-        const rank = await PlayModel.GetPersonalFastestSolveGuildList(player.GetId());
+    public static async GetPersonalFastestSolvesList(player: Player) {
+        const rank = await PlayModel.GetPersonalFastestSolvesList(player.GetId());
         return rank;
     }
 

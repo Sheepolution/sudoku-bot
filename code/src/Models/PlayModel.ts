@@ -145,15 +145,13 @@ export default class PlayModel extends Model {
         `, bindings)).rows;
     }
 
-    public static async GetPersonalFastestSolveGuildList(playerId: string) {
+    public static async GetPersonalFastestSolvesList(playerId: string) {
         const knex = PlayModel.knex();
         return (await knex.raw(`
-            select sudoku_id, duration from 
-            (select sudoku_id, duration from play
-                where play.state = ?
-                and play.solver_id = ?
-                order by duration
-            ) as list
+            select sudoku_id, duration from play
+            where play.state = ?
+            and play.solver_id = ?
+            order by duration
             fetch first 10 rows only;
         `, [PlayState.Solved, playerId])).rows;
     }

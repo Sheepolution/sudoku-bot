@@ -86,7 +86,7 @@ export default class TopListEmbeds {
     }
 
     public static async GetTopPersonalFastest(player: Player) {
-        const list = await PlayRepository.GetPersonalFastestSolveList(player);
+        const list = await PlayRepository.GetPersonalFastestSolvesList(player);
 
         var description = '**Rank**ᅠ**Time** ᅠ ᅠ**Sudoku**\n―――――――――――――――\n';
 
