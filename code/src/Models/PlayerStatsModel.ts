@@ -148,7 +148,7 @@ export default class PlayerStatsModel extends Model {
     public static async GetMostSolvedGuildList(guildId: string) {
         const knex = PlayerStatsModel.knex();
         return (await knex.raw(`
-            select player.name, playerstats.fastest_avg_of_five as duration from playerstats
+            select player.name, playerstats.solved as solved from playerstats
             join
                 player_guild on player_guild.player_id = playerstats.player_id
             join
