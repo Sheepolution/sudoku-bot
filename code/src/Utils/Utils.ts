@@ -137,7 +137,7 @@ export module Utils {
         const semiSecondsOnly = (seconds - Math.floor(seconds)).toString().slice(1, 4);
         const secondsOnly = Math.floor(seconds);
 
-        const secondsString = `${timeInSeconds == 0 ? '00' : `${secondsOnly}`.padStart(2, '0')}${semiSecondsOnly == '.00' ? '' : semiSecondsOnly}`;
+        const secondsString = `${timeInSeconds == 0 ? '00' : `${secondsOnly}`.padStart(2, '0')}${semiSecondsOnly}`;
 
         if (f == 0) {
             return `0:${secondsString}`;
