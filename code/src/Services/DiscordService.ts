@@ -25,12 +25,12 @@ export default class DiscordService {
             return foundMember;
         }
 
-        await guild.members.fetch();
+        // await guild.members.fetch();
 
-        const lowerMember = searchKey.toLowerCase();
-        return guild.members.cache.find(member => {
-            return member.displayName.toLowerCase() == lowerMember || member.user.username.toLowerCase() == lowerMember;
-        });
+        // const lowerMember = searchKey.toLowerCase();
+        // return guild.members.cache.find(member => {
+        //     return member.displayName.toLowerCase() == lowerMember || member.user.username.toLowerCase() == lowerMember;
+        // });
     }
 
     public static async FindMemberById(searchKey: string, guild: Guild) {
