@@ -309,14 +309,14 @@ export default class PlayHandler {
     private static async OnVSGame(messageInfo: IMessageInfo, guild: Guild, player: Player, opponentMention: string) {
         const member = await DiscordService.FindMember(opponentMention, messageInfo.guild);
 
-        if (member.user.id == messageInfo.user.id) {
-            MessageService.ReplyMessage(messageInfo, `You can't challenge yourself. Start a singleplayer suduko with ${CommandService.GetCommandString(guild, CommandService.GetCommandString(guild, CommandConstants.COMMANDS.PLAY[0], ['single'], true))}`, false, true);
+        if (member == null) {
+            MessageService.ReplyMessage(messageInfo, 'I\'m not able to find this member.', false, true);
             CommandManager.SetCooldown(messageInfo, 5);
             return;
         }
 
-        if (member == null) {
-            MessageService.ReplyMessage(messageInfo, 'I\'m not able to find this member.', false, true);
+        if (member.user.id == messageInfo.user.id) {
+            MessageService.ReplyMessage(messageInfo, `You can't challenge yourself. Start a singleplayer suduko with ${CommandService.GetCommandString(guild, CommandService.GetCommandString(guild, CommandConstants.COMMANDS.PLAY[0], ['single'], true))}`, false, true);
             CommandManager.SetCooldown(messageInfo, 5);
             return;
         }
