@@ -198,6 +198,7 @@ export default class PlayManager {
         }
 
         this.HandleUnfinishedPlay(play);
+        return true;
     }
 
     public static async HandleUnfinishedPlay(play: Play) {
