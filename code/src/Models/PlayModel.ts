@@ -51,7 +51,7 @@ export default class PlayModel extends Model {
 
     public static async GetUnfinishedRoyalePlayByChannelId(guildId: string, channelId: string) {
         const play = await PlayModel.query()
-            .where({ guild_id: guildId, channel_id: channelId, state: PlayState.Started })
+            .where({ guild_id: guildId, channel_id: channelId, state: PlayState.Started, type: PlayType.Royale })
             .first();
 
         return play;
