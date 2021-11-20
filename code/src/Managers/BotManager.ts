@@ -57,7 +57,7 @@ export default class BotManager {
         var prefixKey = BotManager.prefixKey + message.guild.id;
         var prefix = await Redis.get(prefixKey);
         if (prefix != null && !message.content.startsWith(prefix)) {
-            Utils.Log('This is a message', message.author.id);
+            Utils.Log(`This is a message. The prefix is ${prefix} and the message is ${message.content}`, message.author.id);
             MessageHandler.OnMessage(messageInfo);
             return;
         }
@@ -71,6 +71,8 @@ export default class BotManager {
         guild = await GuildRepository.GetOrCreateByDiscordId(discordGuild.id);
 
         prefix = guild.GetPrefix();
+
+        Utils.Log(`The prefix is ${prefix}`, message.author.id);
 
         Redis.set(prefixKey, prefix, 'ex', Utils.GetHoursInSeconds(1));
 
