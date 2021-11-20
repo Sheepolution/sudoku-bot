@@ -44,7 +44,7 @@ export default class CommandHandler {
         if (cooldown.time > 0) {
             Utils.Log('There is cooldown!', messageInfo.user.id);
             if (cooldown.tell) {
-                if (messageInfo.channel.type != 'dm' && !DiscordService.IsMemberMod(messageInfo.message.member)) {
+                if (messageInfo.channel.type != 'dm') {
                     return;
                 }
 
