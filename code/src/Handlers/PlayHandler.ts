@@ -35,7 +35,6 @@ export default class PlayHandler {
         const commands = CommandConstants.COMMANDS;
         const commandInfo = messageInfo.commandInfo;
 
-        Utils.Log('We\'re in the PlayHandler', messageInfo.user.id);
         switch (messageInfo.commandInfo.commands) {
             case commands.PLAY:
                 this.OnPlay(messageInfo, guild, commandInfo.args[0], commandInfo.args[1]);
@@ -268,21 +267,17 @@ export default class PlayHandler {
     }
 
     private static async OnStop(messageInfo: IMessageInfo, guild: Guild) {
-        Utils.Log('It\'s time to stop!', messageInfo.user.id);
         if (!await ChannelService.CheckChannel(messageInfo)) {
-            Utils.Log('Invalid channel', messageInfo.user.id);
             return;
         }
 
         const player = await this.GetPlayer(messageInfo.user, guild);
         if (player == null) {
-            Utils.Log('I can\'t find the player!', messageInfo.user.id);
             return;
         }
 
         const play = await PlayManager.GetPlay(player);
         if (play == null) {
-            Utils.Log('There was no sudoku to cancel!', messageInfo.user.id);
             MessageService.ReplyMessage(messageInfo, 'There was no Sudoku to cancel.', false, true);
             CommandManager.SetCooldown(messageInfo, 10);
             return;
@@ -294,12 +289,10 @@ export default class PlayHandler {
             return;
         }
 
-        Utils.Log('Okay time to cancel this Sudoku!', messageInfo.user.id);
         await PlayManager.HandleUnfinishedPlay(play);
         MessageService.ReplyMessage(messageInfo, 'The Sudoku has been cancelled.', true, true);
         CommandManager.SetCooldown(messageInfo, 10);
         LogService.Log(LogType.SudokuStoppedSingle, guild, player, play.GetId());
-        Utils.Log('DONE!', messageInfo.user.id);
     }
 
     private static async OnSingleplayerGame(messageInfo: IMessageInfo, guild: Guild, player: Player) {

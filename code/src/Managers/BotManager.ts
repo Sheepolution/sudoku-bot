@@ -52,19 +52,15 @@ export default class BotManager {
 
         var guild: Guild | null;
 
-        Utils.Log('Getting the prefix key!', message.author.id);
-
         var prefixKey = BotManager.prefixKey + message.guild.id;
         var prefix = await Redis.get(prefixKey);
         if (prefix != null && !message.content.startsWith(prefix)) {
-            Utils.Log(`This is a message. The prefix is ${prefix} and the message is ${message.content}`, message.author.id);
             MessageHandler.OnMessage(messageInfo);
             return;
         }
 
         const discordGuild = messageInfo.guild;
         if (discordGuild == null) {
-            Utils.Log('There is no guild!', messageInfo.user.id);
             return;
         }
 
@@ -72,17 +68,13 @@ export default class BotManager {
 
         prefix = guild.GetPrefix();
 
-        Utils.Log(`The prefix is ${prefix}`, message.author.id);
-
         Redis.set(prefixKey, prefix, 'ex', Utils.GetHoursInSeconds(1));
 
         if (!messageInfo.message.content.startsWith(prefix)) {
-            Utils.Log('This is a message, not a command', messageInfo.user.id);
             MessageHandler.OnMessage(messageInfo);
             return;
         }
 
-        Utils.Log('To the command section!', message.author.id);
         CommandHandler.OnCommand(messageInfo, content, guild);
     }
 
