@@ -23,7 +23,8 @@ export default class CommandUtils {
             content = '';
         }
 
-        command = command.replaceAll('\u200B', '');
+        // Remove zero-width spaces
+        command = command.replaceAll('​', '');
 
         const info: ICommandInfo = {
             command: command,
