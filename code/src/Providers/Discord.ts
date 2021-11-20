@@ -1,5 +1,6 @@
 import { Client, Guild, Message, MessageReaction, PartialMessage, User } from 'discord.js';
 import DiscordService from '../Services/DiscordService';
+import { Utils } from '../Utils/Utils';
 
 export default class Discord {
 
@@ -79,6 +80,7 @@ export default class Discord {
     }
 
     private static EventMessage(message: Message) {
+        Utils.Log('Message received!', message.author.id);
         if (this.eventMessageCallback == null) {
             return;
         }

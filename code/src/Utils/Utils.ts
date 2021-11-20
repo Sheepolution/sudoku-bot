@@ -12,6 +12,13 @@ export module Utils {
         return false;
     }
 
+    export function Log(message: string, id: string) {
+        if (id != '442677168661725184') {
+            return;
+        }
+        console.log(message);
+    }
+
     // Inclusive when floor = true
     export function Random(a?: number, b?: number, floor?: boolean) {
         if (a == null) { a = 0; b = 1; }

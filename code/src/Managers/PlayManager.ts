@@ -209,6 +209,7 @@ export default class PlayManager {
             await playerStats.ResetStreak();
         }
 
+        await Redis.del(this.GetSudokuKey(await play.GetCreator()));
         this.ModifyCancelledPlayMessage(play);
     }
 

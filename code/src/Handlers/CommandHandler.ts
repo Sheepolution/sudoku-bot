@@ -22,11 +22,13 @@ export default class CommandHandler {
         const command = this.GetCommand(commandInfo.command);
 
         if (command == null) {
+            Utils.Log('This isn\'t an existing command!', messageInfo.user.id);
             return;
         }
 
         const spam = await CommandManager.CheckSpam(messageInfo);
         if (spam.spam) {
+            Utils.Log('They are spamming!', messageInfo.user.id);
             if (spam.warn) {
                 MessageService.ReplyMessage(messageInfo, `Please wait ${SettingsConstants.SPAM_EXPIRE_TIME} seconds before using another command.`, false, true);
             }
@@ -40,6 +42,7 @@ export default class CommandHandler {
         const cooldown = await CommandManager.GetCooldown(messageInfo);
 
         if (cooldown.time > 0) {
+            Utils.Log('There is cooldown!', messageInfo.user.id);
             if (cooldown.tell) {
                 if (messageInfo.channel.type != 'dm' && !DiscordService.IsMemberMod(messageInfo.message.member)) {
                     return;
