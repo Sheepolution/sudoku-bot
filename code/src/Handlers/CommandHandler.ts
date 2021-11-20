@@ -41,10 +41,6 @@ export default class CommandHandler {
 
         if (cooldown.time > 0) {
             if (cooldown.tell) {
-                if (messageInfo.channel.type != 'dm') {
-                    return;
-                }
-
                 MessageService.ReplyMessage(messageInfo, `Please wait ${Utils.GetSecondsInMinutesAndSeconds(cooldown.time)} before using this command again.`, false, true);
             }
 
