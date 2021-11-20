@@ -23,6 +23,8 @@ export default class CommandUtils {
             content = '';
         }
 
+        command = command.replaceAll('\u200B', '');
+
         const info: ICommandInfo = {
             command: command,
             commands: [],
