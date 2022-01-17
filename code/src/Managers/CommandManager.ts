@@ -18,9 +18,9 @@ export default class CommandManager {
 
         Redis.expire(spamKey, SettingsConstants.SPAM_EXPIRE_TIME);
 
-        if (total >= 3) {
+        if (total >= 5) {
             spam = true;
-            warn = total == 3;
+            warn = total == 5;
         }
 
         return { spam: spam, warn: warn };

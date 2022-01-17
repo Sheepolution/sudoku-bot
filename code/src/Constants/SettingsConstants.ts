@@ -26,7 +26,7 @@ export default class SettingsConstants {
 
     public static readonly BOT_NAME = 'Sudoku Bot';
 
-    public static readonly SPAM_EXPIRE_TIME = 5; // Seconds
+    public static readonly SPAM_EXPIRE_TIME = 7; // Seconds
     public static readonly CACHE_TIMEOUT_DEFAULT = 10;
 
     public static readonly PLAY_EXPIRE_TIME = 24; // Hours
