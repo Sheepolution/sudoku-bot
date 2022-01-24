@@ -62,6 +62,8 @@ export default class Player {
             return;
         }
 
+        this.name = name;
+
         const updateObject: any = { name: this.name };
 
         if (custom != null) {
