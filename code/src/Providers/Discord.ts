@@ -51,7 +51,7 @@ export default class Discord {
         this.client.once('ready', () => { Discord.EventReady(); });
         this.client.on('guildCreate', (guild) => { Discord.EventGuildCreate(guild); });
         this.client.on('guildDelete', (guild) => { Discord.EventGuildDelete(guild); });
-        this.client.on('message', (message) => { Discord.EventMessage(message); });
+        this.client.on('messageCreate', (message) => { Discord.EventMessage(message); });
         this.client.on('messageUpdate', (oldMessage, newMessage) => { Discord.EventMessageUpdate(oldMessage, newMessage); });
         this.client.on('messageReactionAdd', async (reaction, user) => { await Discord.EventReactionAdd(reaction, <User>user); });
         this.client.login(process.env.TOKEN);
