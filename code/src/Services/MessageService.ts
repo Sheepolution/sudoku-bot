@@ -1,13 +1,13 @@
 import DiscordService from './DiscordService';
 import IMessageInfo from '../Interfaces/IMessageInfo';
-import { TextChannel, MessageEmbed, Message } from 'discord.js';
+import { MessageEmbed, TextChannel, Message } from 'discord.js';
 import EmojiConstants from '../Constants/EmojiConstants';
 
 export default class MessageService {
 
     public static async ReplyMessage(messageInfo: IMessageInfo, text: string, good?: boolean, mention?: boolean, embed?: MessageEmbed, oldMessage?: Message) {
-        if (embed) {
-            if (!await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'EMBED_LINKS')) {
+        if (embed && messageInfo.guild != null) {
+            if (!await DiscordService.CheckPermission(messageInfo, 'EMBED_LINKS')) {
                 return;
             }
         }
@@ -16,26 +16,40 @@ export default class MessageService {
             text = (good ? EmojiConstants.STATUS.GOOD : EmojiConstants.STATUS.BAD) + ' ' + text;
         }
 
-        if (oldMessage != null) {
-            return DiscordService.EditMessage(oldMessage, text, messageInfo.user, embed);
+        const data: any = {};
+
+        if (text?.isFilled()) {
+            data.content = text;
         }
 
-        if (mention) {
-            return DiscordService.ReplyMessage(<TextChannel>messageInfo.channel, messageInfo.user, text, embed);
-        } else {
-            return DiscordService.SendMessage(<TextChannel>messageInfo.channel, text, embed);
+        if (embed != null) {
+            data.embeds = [embed];
         }
+
+        if (oldMessage != null) {
+            return await DiscordService.EditMessage(oldMessage, data);
+        }
+
+        return await DiscordService.ReplyMessage(<TextChannel>messageInfo.channel, messageInfo.user, data);
     }
 
     public static async ReplyEmbed(messageInfo: IMessageInfo, embed: MessageEmbed, text?: string, oldMessage?: Message) {
-        if (!await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'EMBED_LINKS')) {
-            return;
+        if (messageInfo.guild != null) {
+            if (!await DiscordService.CheckPermission(messageInfo, 'EMBED_LINKS')) {
+                return;
+            }
+        }
+
+        const data: any = { embeds: [embed] };
+
+        if (text?.isFilled()) {
+            data.content = text;
         }
 
         if (oldMessage != null) {
-            return DiscordService.EditMessage(oldMessage, text, null, embed);
+            return await DiscordService.EditMessage(oldMessage, data);
         }
 
-        return DiscordService.SendEmbed(messageInfo.channel, embed, text);
+        return await DiscordService.SendMessage(messageInfo.channel, data);
     }
 }

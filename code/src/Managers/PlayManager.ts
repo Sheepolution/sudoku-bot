@@ -225,7 +225,7 @@ export default class PlayManager {
         const message = channel.messages.cache.get(play.GetMessageId());
         if (message != null) {
             try {
-                message.edit(await PlayEmbeds.GetEditCancelledSinglePlayerSudokuEmbed(play));
+                message.edit({ embeds: [await PlayEmbeds.GetEditCancelledSinglePlayerSudokuEmbed(play)] });
             } catch (error) {
                 // Whatever
             }

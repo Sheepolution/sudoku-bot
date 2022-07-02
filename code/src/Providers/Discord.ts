@@ -1,4 +1,4 @@
-import { Client, Guild, Message, MessageReaction, PartialMessage, User } from 'discord.js';
+import { Client, Guild, Intents, Message, MessageReaction, PartialMessage, PartialMessageReaction, User } from 'discord.js';
 import DiscordService from '../Services/DiscordService';
 
 export default class Discord {
@@ -37,7 +37,16 @@ export default class Discord {
     }
 
     public static Init() {
-        this.client = new Client({ partials: ['MESSAGE', 'REACTION'] });
+        this.client = new Client({
+            partials: ['MESSAGE', 'REACTION'],
+            intents: [
+                Intents.FLAGS.GUILDS,
+                Intents.FLAGS.GUILD_MEMBERS,
+                Intents.FLAGS.GUILD_MESSAGES,
+                Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+                Intents.FLAGS.DIRECT_MESSAGES,
+            ]
+        });
 
         DiscordService.SetClient(this.client);
 
@@ -110,9 +119,17 @@ export default class Discord {
         this.eventMessageUpdateCallback(newMessage, true);
     }
 
-    private static async EventReactionAdd(reaction: MessageReaction, user: User) {
+    private static async EventReactionAdd(reaction: MessageReaction | PartialMessageReaction, user: User) {
         if (this.eventReactionAddCallback == null) {
             return;
+        }
+
+        if (reaction.partial) {
+            try {
+                await reaction.fetch();
+            } catch (error) {
+                return;
+            }
         }
 
         if (user.bot) {

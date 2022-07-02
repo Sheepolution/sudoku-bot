@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildMember, Message, MessageEmbed, PermissionResolvable, TextChannel, User } from 'discord.js';
+import { Channel, Client, Guild, GuildChannelResolvable, GuildMember, Message, MessageEditOptions, MessageOptions, PermissionResolvable, Snowflake, TextChannel, User } from 'discord.js';
 import IMessageInfo from '../Interfaces/IMessageInfo';
 import DiscordUtils from '../Utils/DiscordUtils';
 import MessageService from './MessageService';
@@ -93,7 +93,7 @@ export default class DiscordService {
     }
 
     public static async CreateRole(data: any, guild: Guild) {
-        return guild.roles.create({ data: data });
+        return guild.roles.create(data);
     }
 
     public static async FindMessageById(messageId: string, channel: TextChannel) {
@@ -113,106 +113,64 @@ export default class DiscordService {
     }
 
     public static async FindGuildById(guildId: string) {
-        return await this.client.guilds.fetch(guildId, true);
+        return await this.client.guilds.fetch(guildId as Snowflake);
     }
 
     public static IsMemberAdmin(member: GuildMember) {
-        return member.hasPermission('ADMINISTRATOR');
+        return member.permissions.has('ADMINISTRATOR');
     }
 
     public static IsMemberMod(member: GuildMember) {
-        return member.hasPermission('MANAGE_CHANNELS') || member.hasPermission('MANAGE_MESSAGES') || member.hasPermission('MANAGE_ROLES');
+        return member.permissions.has('MANAGE_CHANNELS') || member.permissions.has('MANAGE_MESSAGES') || member.permissions.has('MANAGE_ROLES');
     }
 
-    public static async CheckGuildPermission(guild: Guild, permission: PermissionResolvable, action?: string, messageInfo?: IMessageInfo) {
-        if (guild == null) {
-            return true;
+    public static async CheckPermission(messageInfo: IMessageInfo, permission: PermissionResolvable, action?: string, sendMessage: boolean = true) {
+        if (messageInfo.guild == null) {
+            return;
         }
 
-        const botMember = await DiscordService.FindBotMember(guild);
-        if (botMember.hasPermission(permission)) {
-            return true;
-        }
-
-        if (messageInfo != null) {
-            MessageService.ReplyMessage(messageInfo, `I don't have permission to ${DiscordUtils.GetUserFriendlyPermissionText(permission)}${action?.isFilled() ? `, so I can't ${action}.` : '.'}`, false);
-        }
-
-        return false;
-    }
-
-    public static async CheckChannelPermission(channel: Channel, guild: Guild, permission: PermissionResolvable, action?: string, messageInfo?: IMessageInfo) {
-        if (guild == null) {
-            return true;
-        }
-
-        const botMember = await DiscordService.FindBotMember(guild);
-        const permissions = botMember.permissionsIn(channel);
+        const botMember = await DiscordService.FindBotMember(messageInfo.guild);
+        const permissions = botMember.permissionsIn(messageInfo.channel as GuildChannelResolvable);
         if (permissions.has(permission)) {
             return true;
         }
 
-        if (messageInfo) {
+        if (sendMessage) {
             MessageService.ReplyMessage(messageInfo, `I don't have permission to ${DiscordUtils.GetUserFriendlyPermissionText(permission)}${action?.isFilled() ? `, so I can't ${action}.` : '.'}`, false);
         }
 
         return false;
     }
 
-    public static async SendEmbed(channel: Channel, embed: MessageEmbed, content?: string) {
-        const textChannel: TextChannel = <TextChannel>channel;
-        return await (content ? textChannel.send(content, embed) : textChannel.send(embed));
-    }
-
-    public static async SendMessage(channel: Channel, message: string, embed?: MessageEmbed) {
+    public static async SendMessage(channel: Channel, data: MessageOptions) {
         try {
             const textChannel: TextChannel = <TextChannel>channel;
-            if (embed) {
-                return await this.SendEmbed(textChannel, embed, message);
-            }
-
-            return await textChannel.send(message);
+            return await textChannel.send(data);
         } catch (error) {
             // Was not able to send message.
         }
     }
 
-    public static async ReplyMessage(textChannel: TextChannel, user: User, message: string, embed?: MessageEmbed) {
+    public static async ReplyMessage(textChannel: TextChannel, user: User, data: any) {
         try {
-            const reply = `<@${user}> ${message}`;
+            data.content = `<@${user.id}> ${data.content || ''}`;
 
-            if (embed) {
-                return await this.SendEmbed(textChannel, embed, reply);
-            }
-
-            return await textChannel.send(reply);
+            return await textChannel.send(data);
         } catch (error) {
             // Was not able to send message.
         }
     }
 
-    public static async EditMessage(oldMessage: Message, message: string, user?: User, embed?: MessageEmbed) {
+    public static async EditMessage(oldMessage: Message, data: MessageEditOptions) {
         try {
-            if (user != null) {
-                message = `<@${user}> ${message}`;
-            }
-
-            if (embed) {
-                return await this.EditEmbed(oldMessage, embed, message);
-            }
-
-            return await oldMessage.edit(message);
+            return await oldMessage.edit(data);
         } catch (error) {
             // Was not able to send message.
         }
-    }
-
-    public static async EditEmbed(oldMessage: Message, embed: MessageEmbed, content?: string) {
-        return await (content?.isFilled() ? oldMessage.edit(content, embed) : oldMessage.edit(embed));
     }
 
     public static async RemoveAllReactions(messageInfo: IMessageInfo, message: Message) {
-        if (await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'MANAGE_MESSAGES')) {
+        if (await DiscordService.CheckPermission(messageInfo, 'MANAGE_MESSAGES')) {
             await message.reactions.removeAll().catch();
         }
     }

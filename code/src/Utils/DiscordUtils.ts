@@ -1,4 +1,4 @@
-import { Message, PermissionResolvable, User } from 'discord.js';
+import { Channel, Message, PermissionResolvable, User } from 'discord.js';
 import IMessageInfo from '../Interfaces/IMessageInfo';
 import RegexConstants from '../Constants/RegexConstants';
 
@@ -47,7 +47,7 @@ export default class DiscordUtils {
     public static ParseMessageToInfo(message: Message, user: User) {
         const info: IMessageInfo = {
             user: user,
-            channel: message.channel,
+            channel: message.channel as Channel,
             message: message,
             guild: message.guild || null,
         };

@@ -116,7 +116,7 @@ export default class PlayHandler {
             const message = (<TextChannel>messageInfo.channel).messages.cache.get(resultInfo.data.play.GetMessageId());
             if (message != null) {
                 try {
-                    message.edit(await PlayEmbeds.GetEditSolvedSinglePlayerSudokuEmbed(play, solvedMessage.url));
+                    message.edit({ embeds: [await PlayEmbeds.GetEditSolvedSinglePlayerSudokuEmbed(play, solvedMessage.url)] });
                 } catch (error) {
                     // Whatever
                 }
@@ -334,7 +334,7 @@ export default class PlayHandler {
         const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeEmbed(player, opponent));
         await PlayManager.CreateChallenge(guild, message.id, player.GetDiscordId(), opponent.GetDiscordId());
 
-        if (await DiscordService.CheckChannelPermission(messageInfo.channel, messageInfo.guild, 'ADD_REACTIONS', null, messageInfo)) {
+        if (await DiscordService.CheckPermission(messageInfo, 'ADD_REACTIONS')) {
             await message.react(EmojiConstants.STATUS.GOOD).catch();
             await Utils.Sleep(.5);
             await message.react(EmojiConstants.STATUS.BAD).catch();

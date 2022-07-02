@@ -38,7 +38,7 @@ export default class BotManager {
     }
 
     public static async OnMessage(message: Message, edit?: boolean) {
-        if (message.channel.type == 'dm') {
+        if (message.channel.type == 'DM') {
             return;
         }
 
@@ -79,11 +79,19 @@ export default class BotManager {
     }
 
     public static async OnReaction(reaction: MessageReaction, user: User) {
-        if (reaction.message.channel.type == 'dm') {
+        if (reaction.message.channel.type == 'DM') {
             return;
         }
 
-        const messageInfo: IMessageInfo = DiscordUtils.ParseMessageToInfo(reaction.message, user);
+        const messageInfo: IMessageInfo = DiscordUtils.ParseMessageToInfo(reaction.message as Message, user);
+
+        if (reaction.message.partial) {
+            try {
+                await reaction.fetch();
+            } catch (error) {
+                return;
+            }
+        }
 
         if (!await ChannelService.CheckChannel(messageInfo)) {
             return;
