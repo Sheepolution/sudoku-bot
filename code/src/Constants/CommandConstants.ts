@@ -13,13 +13,12 @@ export default class CommandConstants {
         STATS: ['stats', 'statistics'],
 
         // Top list
-        TOP: ['top', 'rank', 'best', 'list'],
+        TOP: ['top', 'rank', 'best', 'list', 'leaderboard'],
 
         // General
         HELP: ['help', 'about'],
         RULES: ['rules'],
         INVITE: ['invite', 'support'],
-        GUIDE: ['guide'],
         COMMANDS: ['commands'],
         DEVELOPER: ['developer'],
         DONATE: ['donate', 'donation', 'vote', 'premium'],

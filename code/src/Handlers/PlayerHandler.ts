@@ -1,3 +1,4 @@
+import { ChatInputCommandInteraction } from 'discord.js';
 import CommandConstants from '../Constants/CommandConstants';
 import SettingsConstants from '../Constants/SettingsConstants';
 import PlayerEmbeds from '../Embeds/PlayerEmbeds';
@@ -29,6 +30,10 @@ export default class PlayerHandler {
     public static async OnName(messageInfo: IMessageInfo, guild: Guild, name: string) {
         const player = await PlayerManager.GetPlayer(messageInfo.user.id, messageInfo.user.username, guild);
         if (player == null) { return; }
+
+        if (messageInfo.interaction != null && messageInfo.interaction.isCommand()) {
+            name = (messageInfo.interaction as ChatInputCommandInteraction).options.getString('name');
+        }
 
         if (!name?.isFilled()) {
             MessageService.ReplyMessage(messageInfo, `Use this command to set the name for your player. Beware that offensive names might ban you from using the bot without warning.

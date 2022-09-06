@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import CommandConstants from '../Constants/CommandConstants';
 import EmojiConstants from '../Constants/EmojiConstants';
 import SettingsConstants from '../Constants/SettingsConstants';
@@ -15,7 +15,7 @@ import { Utils } from '../Utils/Utils';
 export default class PlayEmbeds {
 
     public static GetSinglePlayerEmbed(sudoku: Sudoku, player: Player) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Singleplayer Sudoku - ${player.GetName()}`)
             .setDescription(`${sudoku.GetPuzzle()}`);
@@ -23,7 +23,7 @@ export default class PlayEmbeds {
     }
 
     public static GetVSEmbed(sudoku: Sudoku, player: Player, opponent: Player) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Multiplayer Sudoku - ${player.GetName()} VS ${opponent.GetName()}`)
             .setDescription(`${sudoku.GetPuzzle()}`);
@@ -31,7 +31,7 @@ export default class PlayEmbeds {
     }
 
     public static GetBattleRoyaleEmbed(sudoku: Sudoku) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle('Multiplayer Sudoku - Battle Royale')
             .setDescription(`${sudoku.GetPuzzle()}`);
@@ -39,16 +39,16 @@ export default class PlayEmbeds {
     }
 
     public static GetVSChallengeEmbed(player: Player, opponent: Player) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Multiplayer Sudoku - ${player.GetName()} vs ${opponent.GetName()}`)
             .setDescription(`${opponent.GetName()} has ${SettingsConstants.CHALLENGE_EXPIRE_TIME_TEXT} to accept this challenge by reacting ${EmojiConstants.STATUS.GOOD} to this message.`)
-            .setFooter(`The Sudoku will begin ${SettingsConstants.CHALLENGE_DELAY_TIME_TEXT} after it has been accepted`);
+            .setFooter({ text: `The Sudoku will begin ${SettingsConstants.CHALLENGE_DELAY_TIME_TEXT} after it has been accepted` });
         return embed;
     }
 
     public static GetVSChallengeNotAcceptedEmbed(player: Player, opponent: Player) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.BAD)
             .setTitle(`Multiplayer Sudoku - ${player.GetName()} vs ${opponent.GetName()}`)
             .setDescription(`${opponent.GetName()} did not accept the challenge.`);
@@ -56,7 +56,7 @@ export default class PlayEmbeds {
     }
 
     public static GetVSChallengeCancelledEmbed(player: Player, opponent: Player) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.BAD)
             .setTitle(`Multiplayer Sudoku - ${player.GetName()} vs ${opponent.GetName()}`)
             .setDescription(`${player.GetName()} cancelled the challenge.`);
@@ -64,7 +64,7 @@ export default class PlayEmbeds {
     }
 
     public static GetBattleRoyaleAnnouncementEmbed() {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle('Multiplayer Sudoku - Battle Royale')
             .setDescription(`In ${SettingsConstants.BATTLE_ROYALE_DELAY_TIME_TEXT} a Battle Royale Sudoku will begin! Everyone is welcome to try and be the first to solve it!`);
@@ -72,7 +72,7 @@ export default class PlayEmbeds {
     }
 
     public static async GetReminderEmbed(player: Player, play: Play) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.BAD)
             .setTitle('You\'re already playing a Sudoku!')
             .setDescription(`You can't start a new Sudoku because you're still ${play.GetType() == PlayType.Royale ? 'hosting a Battle Royale Sudoku.' : `in a Multiplayer Sudoku with ${(await play.GetOpponent(player)).GetName()}`}
@@ -82,7 +82,7 @@ Someone will have to solve it before you can start a new Sudoku.
     }
 
     public static async GetRoyaleReminderEmbed(play: Play) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.BAD)
             .setTitle('There already is a Battle Royale!')
             .setDescription(`There is already a Battle Royale Sudoku going on in this channel.
@@ -152,7 +152,7 @@ Server rank: #${fastestAverageOfFiveGuildRank}
 Global rank: #${fastestAverageOfFiveGlobalRank}`;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.GOOD)
             .setTitle('Solved!')
             .setDescription(description);
@@ -167,7 +167,7 @@ Global rank: #${fastestAverageOfFiveGlobalRank}`;
             `Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['personal'], true)} to get a list of your personal fastest times.`
         ];
 
-        embed.setFooter(`Tip: ${tips.randomChoice()}`);
+        embed.setFooter({ text: `Tip: ${tips.randomChoice()}` });
 
         return embed;
     }
@@ -194,7 +194,7 @@ Global rank: #${fastestAverageOfFiveGlobalRank}`;
             description = `Solved by ${solver.GetName()}!`;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.GOOD)
             .setTitle(title)
             .setDescription(`[${description}](${messageUrl})`);
@@ -215,7 +215,7 @@ Global rank: #${fastestAverageOfFiveGlobalRank}`;
             title = 'Multiplayer Sudoku - Battle Royale';
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.BAD)
             .setTitle(title)
             .setDescription('Cancelled');

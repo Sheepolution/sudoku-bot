@@ -23,7 +23,7 @@ export default class SettingsConstants {
 
     public static readonly BASE_DISCORD_MESSAGE_URL = 'https://discord.com/channels/';
 
-    public static readonly DEFAULT_PREFIX = 'sudoku>';
+    public static readonly DEFAULT_PREFIX = '/';
     public static readonly MAX_PREFIX_LENGTH = 10;
 
     public static readonly BOT_NAME = 'Sudoku Bot';

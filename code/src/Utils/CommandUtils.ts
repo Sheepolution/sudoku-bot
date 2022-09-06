@@ -1,3 +1,4 @@
+import { CommandInteraction } from 'discord.js';
 import ICommandInfo from '../Interfaces/ICommandInfo';
 
 export default class CommandUtils {
@@ -31,6 +32,18 @@ export default class CommandUtils {
             commands: [],
             args: words,
             content: content,
+        };
+
+        return info;
+    }
+
+    public static ParseInteractionToCommand(interaction: CommandInteraction) {
+        const info: ICommandInfo = {
+            command: interaction.commandName,
+            commands: [],
+            args: [],
+            options: interaction.options,
+            content: '',
         };
 
         return info;

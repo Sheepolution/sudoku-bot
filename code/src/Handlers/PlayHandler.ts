@@ -1,4 +1,4 @@
-import { Message, TextChannel, User } from 'discord.js';
+import { ChatInputCommandInteraction, Message, PermissionFlagsBits, TextChannel, User } from 'discord.js';
 import CommandConstants from '../Constants/CommandConstants';
 import EmojiConstants from '../Constants/EmojiConstants';
 import RedisConstants from '../Constants/RedisConstants';
@@ -24,7 +24,6 @@ import CommandService from '../Services/CommandService';
 import DiscordService from '../Services/DiscordService';
 import LogService from '../Services/LogService';
 import MessageService from '../Services/MessageService';
-import DiscordUtils from '../Utils/DiscordUtils';
 import { Utils } from '../Utils/Utils';
 
 export default class PlayHandler {
@@ -172,7 +171,7 @@ export default class PlayHandler {
         player.SetPreparingPlay(true);
         opponent.SetPreparingPlay(true);
 
-        DiscordService.RemoveAllReactions(messageInfo, messageInfo.message);
+        DiscordService.RemoveAllReactions(messageInfo, messageInfo.message as Message);
         await PlayManager.DeleteChallenge(guild, messageInfo.message.id);
 
         await Utils.Sleep(SettingsConstants.CHALLENGE_DELAY_TIME);
@@ -208,13 +207,13 @@ export default class PlayHandler {
 
         if (messageInfo.user.id == challenge.player_id) {
             if (await PlayManager.DeleteChallenge(guild, messageInfo.message.id)) {
-                DiscordService.RemoveAllReactions(messageInfo, messageInfo.message);
-                MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeCancelledEmbed(player, opponent), null, messageInfo.message);
+                DiscordService.RemoveAllReactions(messageInfo, messageInfo.message as Message);
+                MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeCancelledEmbed(player, opponent), null, messageInfo.message as Message);
             }
         } else if (messageInfo.user.id == challenge.opponent_id) {
             if (await PlayManager.DeleteChallenge(guild, messageInfo.message.id)) {
-                DiscordService.RemoveAllReactions(messageInfo, messageInfo.message);
-                MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeNotAcceptedEmbed(player, opponent), null, messageInfo.message);
+                DiscordService.RemoveAllReactions(messageInfo, messageInfo.message as Message);
+                MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeNotAcceptedEmbed(player, opponent), null, messageInfo.message as Message);
             }
         }
     }
@@ -230,12 +229,22 @@ export default class PlayHandler {
             CommandManager.SetCooldown(messageInfo, 600);
         }
 
-        if (!opponentMention?.isFilled() && type?.isFilled()) {
-            if (DiscordUtils.GetMemberId(type) != null) {
-                opponentMention = type;
+        if (messageInfo.interaction != null && messageInfo.interaction.isCommand()) {
+            const royale = (messageInfo.interaction as ChatInputCommandInteraction).options.getBoolean('royale');
+            opponentMention = messageInfo.interaction.options.getUser('opponent', false)?.toString();
+            if (opponentMention != null) {
                 type = 'vs';
+            } else if (royale) {
+                type = 'royale';
             }
         }
+
+        // if (!opponentMention?.isFilled() && type?.isFilled()) {
+        //     if (DiscordUtils.GetMemberId(type) != null) {
+        //         opponentMention = type;
+        //         type = 'vs';
+        //     }
+        // }
 
         const play = await PlayManager.GetPlay(player);
         if (play != null) {
@@ -334,7 +343,7 @@ export default class PlayHandler {
         const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetVSChallengeEmbed(player, opponent));
         await PlayManager.CreateChallenge(guild, message.id, player.GetDiscordId(), opponent.GetDiscordId());
 
-        if (await DiscordService.CheckPermission(messageInfo, 'ADD_REACTIONS')) {
+        if (await DiscordService.CheckPermission(messageInfo, PermissionFlagsBits.AddReactions)) {
             await message.react(EmojiConstants.STATUS.GOOD).catch();
             await Utils.Sleep(.5);
             await message.react(EmojiConstants.STATUS.BAD).catch();

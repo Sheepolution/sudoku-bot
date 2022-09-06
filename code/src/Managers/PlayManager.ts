@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 import RedisConstants from '../Constants/RedisConstants';
 import SettingsConstants from '../Constants/SettingsConstants';
 import PlayEmbeds from '../Embeds/PlayEmbeds';
@@ -150,7 +150,7 @@ export default class PlayManager {
         const sudoku = await play.GetSudoku();
 
         if (sudoku.CheckSolution(solution)) {
-            if (!await play.OnSolve(player, messageInfo.edit ? messageInfo.message.editedAt : messageInfo.message.createdAt)) {
+            if (!await play.OnSolve(player, messageInfo.edit ? (messageInfo.message as Message).editedAt : messageInfo.message.createdAt)) {
                 await player.OnCheating();
 
                 LogService.Log(LogType.PlayerStriked, guild, player);

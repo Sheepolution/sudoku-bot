@@ -1,3 +1,4 @@
+import { ChatInputCommandInteraction } from 'discord.js';
 import CommandConstants from '../Constants/CommandConstants';
 import SudokuConstants from '../Constants/SudokuConstants';
 import TopListEmbeds from '../Embeds/TopListEmbed';
@@ -7,7 +8,6 @@ import IMessageInfo from '../Interfaces/IMessageInfo';
 import PlayerManager from '../Managers/PlayerManager';
 import Guild from '../Objects/Guild';
 import Player from '../Objects/Player';
-import CommandService from '../Services/CommandService';
 import MessageService from '../Services/MessageService';
 
 export default class TopHandler {
@@ -27,8 +27,17 @@ export default class TopHandler {
     }
 
     public static async OnTop(messageInfo: IMessageInfo, guild: Guild, what: string, where: string) {
+        if (messageInfo.interaction != null && messageInfo.interaction.isCommand()) {
+            what = (messageInfo.interaction as ChatInputCommandInteraction).options.getString('type');
+            where = (messageInfo.interaction as ChatInputCommandInteraction).options.getBoolean('server') ? 'server' : 'global';
+            const sudokuId = (messageInfo.interaction as ChatInputCommandInteraction).options.getInteger('sudoku')?.toString();
+            if (sudokuId?.isFilled()) {
+                what = sudokuId;
+            }
+        }
+
         if (!what?.isFilled()) {
-            MessageService.ReplyMessage(messageInfo, `Use this command to get a top 10 list.\n${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.TOP[0], ['time/average/Sudoku ID', 'server/global'])}`);
+            what = 'fastest';
             return;
         }
 

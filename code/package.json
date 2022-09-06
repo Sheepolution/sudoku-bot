@@ -19,7 +19,7 @@
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "async-redis": "^1.1.7",
-    "discord.js": "^13.8.1",
+    "discord.js": "^14.3.0",
     "dotenv": "^8.2.0",
     "eslint": "^6.8.0",
     "object-sizeof": "^1.6.1",
@@ -28,10 +28,10 @@
     "simple-encryptor": "^4.0.0",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.1.1",
+    "typescript": "^4.8.2",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "@types/node": "^12.20.7",
-    "typescript": "^4.1.5"
+    "@types/node": "^12.20.7"
   }
 }

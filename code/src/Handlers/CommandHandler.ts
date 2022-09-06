@@ -12,11 +12,19 @@ import AdminHandler from './AdminHandler';
 import TopHandler from './TopHandler';
 import GeneralHandler from './GeneralHandler';
 import PlayerHandler from './PlayerHandler';
+import { CommandInteraction } from 'discord.js';
 
 export default class CommandHandler {
 
     public static async OnCommand(messageInfo: IMessageInfo, content: string, guild?: Guild) {
-        const commandInfo = CommandUtils.ParseContentToCommand(content, guild?.GetPrefix());
+        let commandInfo;
+
+        if (messageInfo.interaction != null) {
+            commandInfo = CommandUtils.ParseInteractionToCommand(messageInfo.interaction as CommandInteraction);
+        } else {
+            commandInfo = CommandUtils.ParseContentToCommand(content, guild?.GetPrefix());
+        }
+
         messageInfo.commandInfo = commandInfo;
 
         const command = this.GetCommand(commandInfo.command);
@@ -47,7 +55,7 @@ export default class CommandHandler {
             return;
         }
 
-        if (DiscordService.IsMemberMod(messageInfo.message.member)) {
+        if (DiscordService.IsMemberMod(messageInfo.member)) {
             if (AdminHandler.OnCommand(messageInfo, guild)) {
                 return;
             }

@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import CommandConstants from '../Constants/CommandConstants';
 import EmojiConstants from '../Constants/EmojiConstants';
 import ImageConstants from '../Constants/ImageConstants';
@@ -9,7 +9,7 @@ import CommandService from '../Services/CommandService';
 export default class GeneralEmbeds {
 
     public static GetHelpEmbed(guild?: Guild, isMod?: boolean) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle('Help')
             .setDescription(`${SettingsConstants.BOT_NAME} is a Discord bot for playing Sudoku.
@@ -44,7 +44,7 @@ You can use [this](${SettingsConstants.BOT_INVITE_URL}) link to add the bot to y
     }
 
     public static GetRulesEmbed() {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.GOOD)
             .setTitle('Rules')
             .setDescription(`Though it's not always possible to detect whether someone cheats, we would appreciate it if you would follow these rules. Breaking these rules may result in a ban, which prevents you from using this bot in the future.
@@ -53,13 +53,13 @@ You can use [this](${SettingsConstants.BOT_INVITE_URL}) link to add the bot to y
 
 **#2.** It is not allowed to use this bot with an offensive username, as this name might appear on the leaderboard for others to read. Follow the Discord guidelines and you should be fine.
 `)
-            .setFooter(`Thank you ${EmojiConstants.HEART}`);
+            .setFooter({ text: `Thank you ${EmojiConstants.HEART}` });
 
         return embed;
     }
 
     public static GetDonationEmbed() {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.GOOD)
             .setTitle('Donate')
             .setDescription(`Thank you for using ${SettingsConstants.BOT_NAME}!
@@ -76,13 +76,13 @@ You can donate using the methods below:
 **Buy me a coffee** - [Link](${SettingsConstants.DONATION_BMAC_URL})
 
 You can also help me by [voting for the bot](https://top.gg/bot/${SettingsConstants.BOT_ID}) and writing a review.`)
-            .setFooter(`Thank you ${EmojiConstants.HEART}`);
+            .setFooter({ text: `Thank you ${EmojiConstants.HEART}` });
 
         return embed;
     }
 
     public static GetDeveloperEmbed() {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.GOOD)
             .setTitle('Developer')
             .setDescription(`${SettingsConstants.BOT_NAME} is developed by Sheepolution.
@@ -106,7 +106,7 @@ ${EmojiConstants.HEART} [Donate](${SettingsConstants.DONATION_PAYPAL_URL})`)
     }
 
     public static GetInviteEmbed() {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.GOOD)
             .setTitle('Invite')
             .setDescription(`Invite the bot to your own server - [Link](${SettingsConstants.BOT_INVITE_URL})

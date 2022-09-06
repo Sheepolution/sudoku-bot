@@ -3,4 +3,5 @@ export default interface ICommandInfo {
     commands: Array<string>
     content: string;
     args: Array<string>;
+    options?: any,
 }

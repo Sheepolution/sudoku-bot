@@ -1,6 +1,7 @@
-import { Channel, Message, PermissionResolvable, User } from 'discord.js';
+import { Channel, GuildMember, Interaction, Message, User } from 'discord.js';
 import IMessageInfo from '../Interfaces/IMessageInfo';
 import RegexConstants from '../Constants/RegexConstants';
+import DiscordService from '../Services/DiscordService';
 
 export default class DiscordUtils {
 
@@ -49,7 +50,21 @@ export default class DiscordUtils {
             user: user,
             channel: message.channel as Channel,
             message: message,
+            member: message.member,
             guild: message.guild || null,
+        };
+
+        return info;
+    }
+
+    public static async ParseInteractionToInfo(interaction: Interaction) {
+        const info: IMessageInfo = {
+            user: interaction.user,
+            message: interaction,
+            channel: await DiscordService.FindChannelById(interaction.channelId),
+            guild: interaction.guildId ? await DiscordService.FindGuildById(interaction.guildId) : null,
+            interaction: interaction,
+            member: interaction.member == null ? null : interaction.member as GuildMember,
         };
 
         return info;
@@ -66,17 +81,5 @@ export default class DiscordUtils {
         }
 
         return ret;
-    }
-
-    public static GetUserFriendlyPermissionText(permission: PermissionResolvable) {
-        if (typeof permission != 'string') {
-            throw new TypeError('The permission is not of type string');
-        }
-
-        switch (permission) {
-            case 'EMBED_LINKS': return 'send embedded messages';
-        }
-
-        return permission.toLowerCase().replaceAll('_', ' ');
     }
 }

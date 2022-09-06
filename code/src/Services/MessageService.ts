@@ -1,13 +1,13 @@
 import DiscordService from './DiscordService';
 import IMessageInfo from '../Interfaces/IMessageInfo';
-import { MessageEmbed, TextChannel, Message } from 'discord.js';
+import { EmbedBuilder, TextChannel, Message, PermissionFlagsBits, CommandInteraction } from 'discord.js';
 import EmojiConstants from '../Constants/EmojiConstants';
 
 export default class MessageService {
 
-    public static async ReplyMessage(messageInfo: IMessageInfo, text: string, good?: boolean, mention?: boolean, embed?: MessageEmbed, oldMessage?: Message) {
+    public static async ReplyMessage(messageInfo: IMessageInfo, text: string, good?: boolean, mention?: boolean, embed?: EmbedBuilder, oldMessage?: Message) {
         if (embed && messageInfo.guild != null) {
-            if (!await DiscordService.CheckPermission(messageInfo, 'EMBED_LINKS')) {
+            if (!await DiscordService.CheckPermission(messageInfo, PermissionFlagsBits.EmbedLinks)) {
                 return;
             }
         }
@@ -30,12 +30,25 @@ export default class MessageService {
             return await DiscordService.EditMessage(oldMessage, data);
         }
 
+        if (messageInfo.interaction != null) {
+            if (good == false) {
+                data.ephemeral = true;
+            }
+
+            await (messageInfo.interaction as CommandInteraction).reply(data);
+            if (!data.ephemeral) {
+                return await (messageInfo.interaction as CommandInteraction).fetchReply();
+            }
+
+            return;
+        }
+
         return await DiscordService.ReplyMessage(<TextChannel>messageInfo.channel, messageInfo.user, data);
     }
 
-    public static async ReplyEmbed(messageInfo: IMessageInfo, embed: MessageEmbed, text?: string, oldMessage?: Message) {
+    public static async ReplyEmbed(messageInfo: IMessageInfo, embed: EmbedBuilder, text?: string, oldMessage?: Message) {
         if (messageInfo.guild != null) {
-            if (!await DiscordService.CheckPermission(messageInfo, 'EMBED_LINKS')) {
+            if (!await DiscordService.CheckPermission(messageInfo, PermissionFlagsBits.EmbedLinks)) {
                 return;
             }
         }
@@ -48,6 +61,15 @@ export default class MessageService {
 
         if (oldMessage != null) {
             return await DiscordService.EditMessage(oldMessage, data);
+        }
+
+        if (messageInfo.interaction != null) {
+            await (messageInfo.interaction as CommandInteraction).reply(data);
+            if (!data.ephemeral) {
+                return await (messageInfo.interaction as CommandInteraction).fetchReply();
+            }
+
+            return;
         }
 
         return await DiscordService.SendMessage(messageInfo.channel, data);

@@ -1,9 +1,12 @@
-import { Client, Guild, Intents, Message, MessageReaction, PartialMessage, PartialMessageReaction, User } from 'discord.js';
+import { Client, GatewayIntentBits, Guild, Interaction, Message, MessageReaction, PartialMessage, PartialMessageReaction, Partials, User } from 'discord.js';
+import BotManager from '../Managers/BotManager';
 import DiscordService from '../Services/DiscordService';
+import { REST } from '@discordjs/rest';
 
 export default class Discord {
 
     public static client: Client;
+    public static rest: REST;
 
     public static eventReadyCallback: Function;
     public static eventGuildCreateCallback: Function;
@@ -38,11 +41,12 @@ export default class Discord {
 
     public static Init() {
         this.client = new Client({
-            partials: ['MESSAGE', 'REACTION'],
+            partials: [Partials.Reaction, Partials.Channel],
             intents: [
-                Intents.FLAGS.GUILDS,
-                Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildMessageReactions,
+                GatewayIntentBits.DirectMessages
             ]
         });
 
@@ -54,7 +58,10 @@ export default class Discord {
         this.client.on('messageCreate', (message) => { Discord.EventMessage(message); });
         this.client.on('messageUpdate', (oldMessage, newMessage) => { Discord.EventMessageUpdate(oldMessage, newMessage); });
         this.client.on('messageReactionAdd', async (reaction, user) => { await Discord.EventReactionAdd(reaction, <User>user); });
+        this.client.on('interactionCreate', async (interaction) => { await Discord.EventInteraction(interaction); });
         this.client.login(process.env.TOKEN);
+
+        this.rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
     }
 
     public static GetClient() {
@@ -147,5 +154,11 @@ export default class Discord {
         }
 
         this.eventReactionAddCallback(reaction, user);
+    }
+
+    private static async EventInteraction(interaction: Interaction) {
+        if (interaction.isCommand()) {
+            await BotManager.OnInteraction(interaction);
+        }
     }
 }

@@ -1,11 +1,13 @@
-import { Channel, Guild, Message, User } from 'discord.js';
+import { Channel, Guild, GuildMember, Interaction, Message, User } from 'discord.js';
 import ICommandInfo from './ICommandInfo';
 
 export default interface IMessageInfo {
     guild?: Guild;
     channel: Channel;
     user: User;
-    message: Message;
+    member: GuildMember;
+    message?: Message | Interaction;
     commandInfo?: ICommandInfo;
     edit?: boolean;
+    interaction?: Interaction;
 }

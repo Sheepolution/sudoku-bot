@@ -1,3 +1,4 @@
+import SettingsConstants from '../Constants/SettingsConstants';
 import SudokuModel from '../Models/SudokuModel';
 import SudokuUtils from '../Utils/SudokuUtils';
 
@@ -69,8 +70,8 @@ export default class Sudoku {
             solutionString += ns;
         }
 
-        puzzleString += ' |\n+-------+-------+-------+\n```​`';
-        solutionString += ' |\n+-------+-------+-------+\n```​`';
+        puzzleString += ' |\n+-------+-------+-------+\n```​' + `<@${SettingsConstants.BOT_ID}>` + '`';
+        solutionString += ' |\n+-------+-------+-------+\n```​';
 
         this.prettyPuzzle = puzzleString;
         this.prettySolution = solutionString;

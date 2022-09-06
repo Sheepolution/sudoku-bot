@@ -1,6 +1,6 @@
 import CommandHandler from '../Handlers/CommandHandler';
 import IMessageInfo from '../Interfaces/IMessageInfo';
-import { Guild as DiscordGuild, Message, MessageReaction, User } from 'discord.js';
+import { ActivityType, Guild as DiscordGuild, Interaction, Message, MessageReaction, User } from 'discord.js';
 import DiscordUtils from '../Utils/DiscordUtils';
 import Guild from '../Objects/Guild';
 import GuildRepository from '../Repositories/GuildRepository';
@@ -15,6 +15,7 @@ import ChannelService from '../Services/ChannelService';
 import Discord from '../Providers/Discord';
 import LogService from '../Services/LogService';
 import { LogType } from '../Enums/LogType';
+import CommandManager from './CommandManager';
 
 export default class BotManager {
 
@@ -34,11 +35,17 @@ export default class BotManager {
     }
 
     public static SetActivity() {
-        Discord.GetClient().user?.setActivity(`${SettingsConstants.DEFAULT_PREFIX}help`, { type: 'WATCHING' });
+        Discord.GetClient().user?.setActivity(`${SettingsConstants.DEFAULT_PREFIX}help`, { type: ActivityType.Watching });
     }
 
     public static async OnMessage(message: Message, edit?: boolean) {
-        if (message.channel.type == 'DM') {
+        if (message.channel.type == 1) {
+            if (message.author.id == SettingsConstants.MASTER_ID) {
+                if (message.content == ';update-slash-commands') {
+                    CommandManager.UpdateSlashCommands();
+                    message.reply('Done');
+                }
+            }
             return;
         }
 
@@ -70,7 +77,7 @@ export default class BotManager {
 
         Redis.set(prefixKey, prefix, 'ex', Utils.GetHoursInSeconds(1));
 
-        if (!messageInfo.message.content.startsWith(prefix)) {
+        if (!(messageInfo.message as Message).content.startsWith(prefix)) {
             MessageHandler.OnMessage(messageInfo);
             return;
         }
@@ -119,5 +126,18 @@ export default class BotManager {
         const guild = await GuildRepository.GetOrCreateByDiscordId(discordGuild.id);
         await guild.OnLeave();
         LogService.Log(LogType.GuildLeft, guild);
+    }
+
+    public static async OnInteraction(interaction: Interaction) {
+        const messageInfo: IMessageInfo = await DiscordUtils.ParseInteractionToInfo(interaction);
+
+        let guild: Guild | null;
+
+        const discordGuild = messageInfo.guild;
+        if (discordGuild != null) {
+            guild = await GuildRepository.GetOrCreateByDiscordId(discordGuild.id);
+        }
+
+        CommandHandler.OnCommand(messageInfo, '', guild);
     }
 }

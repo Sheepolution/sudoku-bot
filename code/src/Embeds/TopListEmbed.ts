@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import SettingsConstants from '../Constants/SettingsConstants';
 import { TopListScaleType } from '../Enums/TopListScaleType';
 import Guild from '../Objects/Guild';
@@ -19,7 +19,7 @@ export default class TopListEmbeds {
             description += `**#${i + 1}.**${i == 9 ? '' : ' '}ᅠ${i == 9 ? '' : ' '}\`${Utils.GetSecondsInDigitalMinutesAndSeconds(item.duration)}\` ᅠ ${item.name}\n`;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Top Fastest Solves - ${guild == null ? TopListScaleType.Global : TopListScaleType.Server}`)
             .setDescription(description);
@@ -41,7 +41,7 @@ export default class TopListEmbeds {
             description = 'No solves yet!';
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Top Fastest Solves for Sudoku #${sudokuId} - ${guild == null ? TopListScaleType.Global : TopListScaleType.Server}`)
             .setDescription(description);
@@ -59,7 +59,7 @@ export default class TopListEmbeds {
             description += `**#${i + 1}.**${i == 9 ? '' : ' '}ᅠ${i == 9 ? '' : ' '}\`${Utils.GetSecondsInDigitalMinutesAndSeconds(item.duration)}\` ᅠ ${item.name}\n`;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Top Fastest Average of Five - ${guild == null ? TopListScaleType.Global : TopListScaleType.Server}`)
             .setDescription(description);
@@ -77,7 +77,7 @@ export default class TopListEmbeds {
             description += `**#${i + 1}.**${i == 9 ? '' : ' '}ᅠ${i == 9 ? '' : ' '}\`${item.solved}\` ᅠ ${item.name}\n`;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Top Most Solved - ${guild == null ? TopListScaleType.Global : TopListScaleType.Server}`)
             .setDescription(description);
@@ -95,7 +95,7 @@ export default class TopListEmbeds {
             description += `**#${i + 1}.**${i == 9 ? '' : ' '}ᅠ${i == 9 ? '' : ' '}\`${Utils.GetSecondsInDigitalMinutesAndSeconds(item.duration)}\` ᅠ #${item.sudoku_id}\n`;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle('Top Fastest Personal Solves')
             .setDescription(description);

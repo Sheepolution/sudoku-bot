@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import SettingsConstants from '../Constants/SettingsConstants';
 import Guild from '../Objects/Guild';
 import Player from '../Objects/Player';
@@ -8,7 +8,7 @@ import { Utils } from '../Utils/Utils';
 export default class PlayerEmbeds {
 
     public static GetStrikeEmbed() {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.BAD)
             .setTitle('Cheating')
             .setDescription(`You are suspected of cheating.
@@ -19,7 +19,7 @@ If you believe you did not cheat you can discuss this with the developer in the 
     }
 
     public static GetBannedEmbed() {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle('Cheating')
             .setDescription(`You are suspected of cheating.
@@ -34,7 +34,7 @@ If you believe you did not cheat you can discuss this with the developer in the 
         const fastestSolveGlobalRank = await PlayerStatsRepository.GetFastestSolveGlobalRank(player);
 
         if (fastestSolveGlobalRank == null) {
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setColor(SettingsConstants.COLORS.BAD)
                 .setTitle(`Player Statistics - ${player.GetName()}`)
                 .setDescription('Solve at least one Sudoku to get statistics!');
@@ -66,7 +66,7 @@ Server rank: #${fastestAverageOfFiveGuildRank}
 Global rank: #${fastestAverageOfFiveGlobalRank}`;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(SettingsConstants.COLORS.DEFAULT)
             .setTitle(`Player Statistics - ${player.GetName()}`)
             .setDescription(description);
