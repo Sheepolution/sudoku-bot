@@ -86,10 +86,6 @@ export default class BotManager {
     }
 
     public static async OnReaction(reaction: MessageReaction, user: User) {
-        if (reaction.message.channel.type == 'DM') {
-            return;
-        }
-
         const messageInfo: IMessageInfo = DiscordUtils.ParseMessageToInfo(reaction.message as Message, user);
 
         if (reaction.message.partial) {
