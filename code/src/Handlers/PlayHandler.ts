@@ -48,6 +48,9 @@ export default class PlayHandler {
     }
 
     public static async OnSolution(messageInfo: IMessageInfo, guild: Guild, solution: string) {
+        // Remove tag
+        solution = solution.replace(/<@!?(\d+)>/g, '');
+
         const player = await this.GetPlayer(messageInfo.user, guild);
         if (player == null) { return; }
 
