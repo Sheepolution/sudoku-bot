@@ -96,6 +96,7 @@ export default class CommandManager {
                             { name: 'Solved', value: 'solved' },
                             { name: 'Fastest', value: 'fastest' },
                             { name: 'Streak', value: 'streak' },
+                            { name: 'Average', value: 'average' },
                         )
                 )
                 .addIntegerOption(option =>
