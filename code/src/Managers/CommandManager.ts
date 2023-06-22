@@ -109,6 +109,29 @@ export default class CommandManager {
                         .setRequired(false)
                 ).toJSON(),
             new SlashCommandBuilder()
+                .setName('top')
+                .setDescription('Get the leaderboard')
+                .addStringOption(option =>
+                    option.setName('type')
+                        .setDescription('The type of leaderboard')
+                        .setRequired(false)
+                        .addChoices(
+                            { name: 'Solved', value: 'solved' },
+                            { name: 'Fastest', value: 'fastest' },
+                            { name: 'Streak', value: 'streak' },
+                            { name: 'Average', value: 'average' },
+                        )
+                )
+                .addIntegerOption(option =>
+                    option.setName('sudoku')
+                        .setDescription('The sudoku ID you want the leaderbord for')
+                        .setRequired(false))
+                .addBooleanOption(option =>
+                    option.setName('server')
+                        .setDescription('Whether to get the leaderboard for this server')
+                        .setRequired(false)
+                ).toJSON(),
+            new SlashCommandBuilder()
                 .setName('help')
                 .setDescription('Get information about the bot')
                 .toJSON(),
