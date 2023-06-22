@@ -16,7 +16,6 @@ export default class GeneralEmbeds {
 ${isMod ? `
 **Setup**
 Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.CHANNEL[0], ['add'])} in the channels where members should be allowed to play Sudoku.
-Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.PREFIX[0], ['prefix'])} to set the prefix for the commands.
 ` : ''}
 **Playing Sudoku**
 Use ${CommandService.GetCommandString(guild, CommandConstants.COMMANDS.PLAY[0])} to get a Sudoku to solve.
