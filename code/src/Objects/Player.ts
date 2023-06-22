@@ -79,6 +79,11 @@ export default class Player {
 
     public SetPreparingPlay(preparingPlay: boolean) {
         this.preparingPlay = preparingPlay;
+        if (this.preparingPlay) {
+            setTimeout(() => {
+                this.preparingPlay = false;
+            }, Utils.GetMinutesInMiliSeconds(SettingsConstants.BATTLE_ROYALE_DELAY_TIME));
+        }
     }
 
     public async GetStats() {
