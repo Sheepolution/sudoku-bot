@@ -387,6 +387,8 @@ export default class PlayHandler {
 
         const sudoku = await SudokuRepository.GetRandom();
 
+        messageInfo.interaction = null;
+
         const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetBattleRoyaleEmbed(sudoku));
 
         if (message != null) {
