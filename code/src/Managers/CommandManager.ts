@@ -71,6 +71,11 @@ export default class CommandManager {
                     option.setName('opponent')
                         .setDescription('The person you want to play against')
                         .setRequired(false)
+                )
+                .addBooleanOption(option =>
+                    option.setName('embed')
+                        .setDescription('Whether the message should have an embed')
+                        .setRequired(false)
                 ).toJSON(),
             new SlashCommandBuilder()
                 .setName('stop')

@@ -309,7 +309,13 @@ export default class PlayHandler {
 
     private static async OnSingleplayerGame(messageInfo: IMessageInfo, guild: Guild, player: Player) {
         const sudoku = await SudokuRepository.GetRandom();
-        const message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetSinglePlayerEmbed(sudoku, player));
+        const embed = (messageInfo.interaction as ChatInputCommandInteraction).options.getBoolean('embed', false) ?? true;
+        let message: Message;
+        if (embed) {
+            message = await MessageService.ReplyEmbed(messageInfo, PlayEmbeds.GetSinglePlayerEmbed(sudoku, player));
+        } else {
+            message = await MessageService.ReplyMessage(messageInfo, sudoku.GetPuzzle());
+        }
 
         if (message != null) {
             PlayManager.StartPlay(sudoku, guild, player, messageInfo.message.createdAt, message.id, message.channel.id);
