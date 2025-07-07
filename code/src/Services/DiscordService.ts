@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildChannelResolvable, GuildMember, Message, MessageEditOptions, MessageOptions, PermissionFlagsBits, PermissionResolvable, Snowflake, TextChannel, User } from 'discord.js';
+import { Channel, Client, Guild, GuildChannelResolvable, GuildMember, Message, MessageCreateOptions, MessageEditOptions, PermissionFlagsBits, PermissionResolvable, Snowflake, TextChannel, User } from 'discord.js';
 import IMessageInfo from '../Interfaces/IMessageInfo';
 import DiscordUtils from '../Utils/DiscordUtils';
 import MessageService from './MessageService';
@@ -142,7 +142,7 @@ export default class DiscordService {
         return false;
     }
 
-    public static async SendMessage(channel: Channel, data: MessageOptions) {
+    public static async SendMessage(channel: Channel, data: MessageCreateOptions) {
         try {
             const textChannel: TextChannel = <TextChannel>channel;
             return await textChannel.send(data);

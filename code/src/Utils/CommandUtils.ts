@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, CommandInteraction } from 'discord.js';
 import ICommandInfo from '../Interfaces/ICommandInfo';
 
 export default class CommandUtils {
@@ -42,7 +42,7 @@ export default class CommandUtils {
             command: interaction.commandName,
             commands: [],
             args: [],
-            options: interaction.options,
+            options: (<ChatInputCommandInteraction>interaction).options,
             content: '',
         };
 

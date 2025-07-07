@@ -234,7 +234,7 @@ export default class PlayHandler {
 
         if (messageInfo.interaction != null && messageInfo.interaction.isCommand()) {
             const royale = (messageInfo.interaction as ChatInputCommandInteraction).options.getBoolean('royale');
-            opponentMention = messageInfo.interaction.options.getUser('opponent', false)?.toString();
+            opponentMention = (messageInfo.interaction as ChatInputCommandInteraction).options.getUser('opponent', false)?.toString();
             if (opponentMention != null) {
                 type = 'vs';
             } else if (royale) {

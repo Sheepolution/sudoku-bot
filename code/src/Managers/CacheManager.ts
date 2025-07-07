@@ -1,4 +1,3 @@
-import sizeof from 'object-sizeof';
 import { Utils } from '../Utils/Utils';
 
 export default class CacheManager {
@@ -25,17 +24,6 @@ export default class CacheManager {
                 }
             }
         }
-    }
-
-    public static GetSizeInfo() {
-        const sizeInfo: any = {};
-        sizeInfo.total = sizeof(this.cache);
-
-        for (const name in this.cache) {
-            sizeInfo[name] = sizeof(this.cache[name]);
-        }
-
-        return sizeInfo;
     }
 
     public static Empty() {

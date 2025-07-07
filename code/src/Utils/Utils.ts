@@ -1,7 +1,7 @@
 /* eslint-disable no-inner-declarations */
-const uuidv4 = require('uuid/v4');
+import uuid from 'uuid'
 
-export module Utils {
+export namespace Utils {
 
     export function Is(a: any, ...b: any) {
         for (const n of b) {
@@ -43,7 +43,7 @@ export module Utils {
     }
 
     export function UUID() {
-        return uuidv4();
+        return uuid.v4();
     }
 
     export function ObjectToArray(obj: any) {
